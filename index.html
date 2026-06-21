@@ -4,25 +4,22 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0f3d43" />
-  <title>SkouZen, Pearl, Ivory, Onyx</title>
+  <title>Elements</title>
   <meta name="description" content="Front-end site για διαμερίσματα σε Πειραιά και Σπέτσες." />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div id="loader" class="loader" aria-label="Φόρτωση σελίδας">
     <div class="loader-card">
-      <div class="loader-mark">S</div>
-      <div class="loader-line"><span></span></div>
-      <p>Loading</p>
+      <div class="loader-spinner" aria-hidden="true"></div>
     </div>
   </div>
 
   <header class="site-header" id="siteHeader">
-    <a href="#home" class="brand" aria-label="Αρχική σελίδα">
-      <span class="brand-icon">S</span>
+    <a href="index.html" class="brand" aria-label="Αρχική σελίδα" data-home-link>
+      <span class="brand-icon">E</span>
       <span class="brand-text">
-        <strong>SkouZen</strong>
-        <small>City & Island Stays</small>
+        <strong>Elements</strong>
       </span>
     </a>
 
@@ -31,10 +28,10 @@
     </button>
 
     <nav class="nav" id="mainNav" aria-label="Κύριο μενού">
-      <a href="#home">Home</a>
+      <a href="index.html" data-home-link>Home</a>
       <a href="#piraeus">Πειραιάς</a>
       <a href="#spetses">Σπέτσες</a>
-      <a href="#book">Book</a>
+      <a href="#book">Κράτηση</a>
       <a href="#contact">Contact</a>
     </nav>
   </header>
@@ -47,8 +44,7 @@
 
         <div class="map-home-copy reveal-up">
           <p class="eyebrow">Boutique stays in Greece</p>
-          <h1 id="homeTitle">City & Island Stays</h1>
-          <p>Πειραιάς: SkouZen και Pearl. Σπέτσες: Ivory και Onyx.</p>
+          <h1 id="homeTitle">Elements</h1>
         </div>
 
         <button class="map-hotspot hotspot-piraeus" type="button" data-place="piraeus" aria-label="Πειραιάς"><span>Πειραιάς</span></button>
@@ -57,7 +53,7 @@
     </section>
 
     <section class="page destination-page" data-route="piraeus" aria-labelledby="piraeusTitle">
-      <div class="destination-hero compact-hero" style="--bg: url('assets/hero_piraeus.svg')">
+      <div class="destination-hero compact-hero piraeus-photo-hero" style="--bg: url('assets/hero_piraeus.svg')">
         <div class="hero-shade"></div>
         <div class="hero-copy reveal-up">
           <p class="eyebrow">Πειραιάς</p>
@@ -70,17 +66,17 @@
         <article class="property-card reveal-up">
           <img src="assets/skouzen/skouzen-01.jpg" alt="SkouZen apartment preview" />
           <div class="property-body">
-            <span class="tag">Small apartment</span>
+            <span class="tag">Μικρό διαμέρισμα</span>
             <h2>SkouZen</h2>
             <p>Μικρό, λειτουργικό, ήρεμο. Ιδανικό για γρήγορη απόδραση, δουλειά ή ζευγάρι.</p>
             <ul>
-              <li>Compact layout</li>
-              <li>Cozy city vibe</li>
-              <li>Easy check-in</li>
+              <li>Compact διάταξη</li>
+              <li>Ζεστή city αισθητική</li>
+              <li>Εύκολο check-in</li>
             </ul>
             <div class="card-actions">
               <a class="btn primary" href="#skouzen">Περισσότερα</a>
-              <a class="btn ghost" href="#book" data-book-property="SkouZen">Book</a>
+              <a class="btn ghost" href="#book" data-book-property="SkouZen">Κράτηση</a>
             </div>
           </div>
         </article>
@@ -98,7 +94,7 @@
             </ul>
             <div class="card-actions">
               <a class="btn primary" href="#pearl">Περισσότερα</a>
-              <a class="btn ghost" href="#book" data-book-property="Pearl">Book</a>
+              <a class="btn ghost" href="#book" data-book-property="Pearl">Κράτηση</a>
             </div>
           </div>
         </article>
@@ -129,7 +125,7 @@
             </ul>
             <div class="card-actions">
               <a class="btn primary" href="#ivory">Περισσότερα</a>
-              <a class="btn ghost" href="#book" data-book-property="Ivory">Book</a>
+              <a class="btn ghost" href="#book" data-book-property="Ivory">Κράτηση</a>
             </div>
           </div>
         </article>
@@ -147,14 +143,14 @@
             </ul>
             <div class="card-actions">
               <a class="btn primary" href="#onyx">Περισσότερα</a>
-              <a class="btn ghost" href="#book" data-book-property="Onyx">Book</a>
+              <a class="btn ghost" href="#book" data-book-property="Onyx">Κράτηση</a>
             </div>
           </div>
         </article>
       </div>
     </section>
 
-    <section class="page detail-page" data-route="skouzen" data-property-page="SkouZen" aria-labelledby="skouzenTitle">
+    <section class="page detail-page skouzen-page" data-route="skouzen" data-property-page="SkouZen" aria-labelledby="skouzenTitle">
       <div class="detail-layout">
         <div class="detail-gallery skouzen-gallery reveal-up" data-slideshow>
           <div class="slideshow-stage">
@@ -184,10 +180,29 @@
           <h1 id="skouzenTitle">SkouZen</h1>
           <p class="lead">Το μικρό διαμέρισμα για διαμονές που θέλουν απλότητα, καθαρότητα και ωραίο city rhythm.</p>
           <div class="feature-strip">
-            <span>2 guests</span><span>Compact</span><span>City stay</span>
+            <span>2 επισκέπτες</span><span>Compact</span><span>Διαμονή πόλης</span>
           </div>
           <p>Στήσιμο για ζευγάρι ή solo ταξίδι, με καθαρό χώρο, έξυπνη διάταξη και αισθητική που δεν είναι βαριά.</p>
-          <a class="btn primary big" href="#book" data-book-property="SkouZen">Book SkouZen</a>
+          <a class="btn primary big" href="#book" data-book-property="SkouZen">Κράτηση SkouZen</a>
+          <div class="skouzen-listing-panel">
+            <div class="booking-facts">
+              <span>2 επισκέπτες</span>
+              <span>1 κρεβάτι</span>
+              <span>Compact διάταξη</span>
+              <span>Εύκολο check-in</span>
+            </div>
+            <h2>Παροχές</h2>
+            <div class="amenity-grid">
+              <span>✓ WiFi</span>
+              <span>✓ Κλιματισμός</span>
+              <span>✓ Βασικά κουζίνας</span>
+              <span>✓ Καθαρά σεντόνια</span>
+              <span>✓ Πετσέτες</span>
+              <span>✓ Smart TV</span>
+              <span>✓ Πιστολάκι μαλλιών</span>
+              <span>✓ Αυτόνομο check-in</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -324,7 +339,14 @@
     </section>
   </main>
 
-  <button class="floating-book" onclick="location.hash='book'">Book</button>
+  <button class="floating-book" onclick="location.hash='book'">Κράτηση</button>
+  <div class="photo-lightbox" id="photoLightbox" aria-hidden="true">
+    <button class="lightbox-close" type="button" data-lightbox-close aria-label="Close photo">×</button>
+    <button class="lightbox-nav lightbox-prev" type="button" data-lightbox-prev aria-label="Previous photo">‹</button>
+    <img class="lightbox-image" src="" alt="" />
+    <button class="lightbox-nav lightbox-next" type="button" data-lightbox-next aria-label="Next photo">›</button>
+    <div class="lightbox-counter"><span data-lightbox-current>1</span> / <span data-lightbox-total>1</span></div>
+  </div>
 
   <script src="app.js"></script>
 </body>

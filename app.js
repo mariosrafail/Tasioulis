@@ -8,17 +8,29 @@ const loader = document.getElementById('loader');
 const loaderText = loader ? loader.querySelector('p') : null;
 const mapHome = document.querySelector('.map-home');
 const slideshows = [...document.querySelectorAll('[data-slideshow]')];
+const photoLightbox = document.getElementById('photoLightbox');
+const lightboxImage = photoLightbox?.querySelector('.lightbox-image');
+const lightboxCurrent = photoLightbox?.querySelector('[data-lightbox-current]');
+const lightboxTotal = photoLightbox?.querySelector('[data-lightbox-total]');
 
 const validRoutes = new Set(pages.map(page => page.dataset.route));
 let pendingProperty = null;
 let routeTimer = null;
 let loaderTimer = null;
 let slideshowTimer = null;
+let mapZoomTimer = null;
+let lightboxGallery = null;
+let lightboxIndex = 0;
 let currentRoute = null;
 
 function getRoute() {
   const route = location.hash.replace('#', '').trim() || 'home';
   return validRoutes.has(route) ? route : 'home';
+}
+
+function cleanHomeHash() {
+  if (location.hash !== '#home') return;
+  history.replaceState(null, '', location.pathname + location.search);
 }
 
 function setActiveNav(route) {
@@ -97,7 +109,66 @@ function startSlideshow(page) {
   stopSlideshow();
   const gallery = page?.querySelector('[data-slideshow]');
   if (!gallery || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (gallery.classList.contains('skouzen-gallery')) return;
   slideshowTimer = window.setInterval(() => stepGallery(gallery, 1), 5200);
+}
+
+function getGalleryButtons(gallery) {
+  return [...gallery.querySelectorAll('.thumb-row button[data-photo]')];
+}
+
+function setLightboxPhoto(index) {
+  if (!photoLightbox || !lightboxImage || !lightboxGallery) return;
+  const buttons = getGalleryButtons(lightboxGallery);
+  if (!buttons.length) return;
+
+  lightboxIndex = (index + buttons.length) % buttons.length;
+  const selected = buttons[lightboxIndex];
+
+  const applyPhoto = () => {
+    lightboxImage.src = selected.dataset.photo;
+    lightboxImage.alt = selected.querySelector('img')?.alt || 'Apartment photo';
+    lightboxImage.classList.remove('is-changing');
+  };
+
+  if (photoLightbox.classList.contains('open')) {
+    lightboxImage.classList.add('is-changing');
+    window.setTimeout(applyPhoto, 150);
+  } else {
+    applyPhoto();
+  }
+
+  if (lightboxCurrent) lightboxCurrent.textContent = String(lightboxIndex + 1);
+  if (lightboxTotal) lightboxTotal.textContent = String(buttons.length);
+  setGalleryPhoto(lightboxGallery, lightboxIndex);
+}
+
+function openLightbox(gallery) {
+  if (!photoLightbox || !gallery) return;
+  const buttons = getGalleryButtons(gallery);
+  if (!buttons.length) return;
+
+  lightboxGallery = gallery;
+  lightboxIndex = Math.max(0, buttons.findIndex(button => button.classList.contains('active')));
+  stopSlideshow();
+  setLightboxPhoto(lightboxIndex);
+  photoLightbox.classList.add('open');
+  photoLightbox.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('lightbox-open');
+}
+
+function closeLightbox() {
+  if (!photoLightbox) return;
+  photoLightbox.classList.remove('open');
+  photoLightbox.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('lightbox-open');
+  if (lightboxGallery) startSlideshow(lightboxGallery.closest('.page'));
+  lightboxGallery = null;
+}
+
+function stepLightbox(direction) {
+  if (!lightboxGallery) return;
+  setLightboxPhoto(lightboxIndex + direction);
 }
 
 function renderRoute(route) {
@@ -105,6 +176,7 @@ function renderRoute(route) {
   const activePage = pages.find(page => page.dataset.route === route);
   document.body.classList.toggle('route-home', route === 'home');
   document.body.classList.toggle('route-inner', route !== 'home');
+  if (route === 'home') resetMapZoom();
   setActiveNav(route);
   closeMenu();
   window.scrollTo({ top: 0, behavior: 'auto' });
@@ -118,8 +190,18 @@ function renderRoute(route) {
   currentRoute = route;
 }
 
+function resetMapZoom() {
+  if (!mapHome) return;
+  window.clearTimeout(mapZoomTimer);
+  mapHome.classList.remove('is-zooming', 'zoom-piraeus', 'zoom-spetses');
+  mapHome.querySelectorAll('.map-hotspot').forEach(button => {
+    button.classList.remove('is-selected', 'tap-pulse');
+  });
+}
+
 function showRouteWithLoading() {
   const route = getRoute();
+  cleanHomeHash();
   window.clearTimeout(routeTimer);
   showLoader('Loading');
   routeTimer = window.setTimeout(() => {
@@ -141,6 +223,7 @@ window.addEventListener('scroll', () => {
 });
 
 window.addEventListener('load', () => {
+  cleanHomeHash();
   renderRoute(getRoute());
   window.setTimeout(() => hideLoader(), 650);
 });
@@ -152,19 +235,41 @@ menuToggle.addEventListener('click', () => {
 });
 
 document.addEventListener('click', event => {
+  const homeLink = event.target.closest('[data-home-link]');
+  if (homeLink) {
+    event.preventDefault();
+    if (currentRoute !== 'home') showLoader('Loading');
+    history.pushState(null, '', location.pathname + location.search);
+    window.clearTimeout(routeTimer);
+    routeTimer = window.setTimeout(() => {
+      renderRoute('home');
+      hideLoader();
+    }, currentRoute === 'home' ? 0 : 520);
+    return;
+  }
+
   const mapHotspot = event.target.closest('.map-hotspot');
   if (mapHotspot) {
     event.preventDefault();
+    if (mapHome?.classList.contains('is-zooming')) return;
     const targetRoute = mapHotspot.dataset.place;
     if (!targetRoute || !validRoutes.has(targetRoute)) return;
 
     mapHotspot.classList.remove('tap-pulse');
     void mapHotspot.offsetWidth;
     mapHotspot.classList.add('tap-pulse');
-    showLoader('Loading');
-    window.setTimeout(() => {
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isMobileMap = window.matchMedia('(max-width: 900px)').matches;
+    if (mapHome && !prefersReducedMotion && !isMobileMap) {
+      mapHome.classList.add('is-zooming', `zoom-${targetRoute}`);
+      mapHotspot.classList.add('is-selected');
+    }
+
+    mapZoomTimer = window.setTimeout(() => {
+      showLoader('Loading');
       location.hash = targetRoute;
-    }, 170);
+    }, prefersReducedMotion || isMobileMap ? 120 : 940);
     return;
   }
 
@@ -190,17 +295,50 @@ document.addEventListener('click', event => {
     return;
   }
 
+  const lightboxClose = event.target.closest('[data-lightbox-close]');
+  const lightboxPrev = event.target.closest('[data-lightbox-prev]');
+  const lightboxNext = event.target.closest('[data-lightbox-next]');
+  if (lightboxClose) {
+    closeLightbox();
+    return;
+  }
+  if (lightboxPrev || lightboxNext) {
+    stepLightbox(lightboxPrev ? -1 : 1);
+    return;
+  }
+  if (photoLightbox?.classList.contains('open') && event.target === photoLightbox) {
+    closeLightbox();
+    return;
+  }
+
+  const slideshowPhoto = event.target.closest('[data-slideshow] .main-photo');
+  if (slideshowPhoto) {
+    openLightbox(slideshowPhoto.closest('[data-slideshow]'));
+    return;
+  }
+
   const thumb = event.target.closest('.thumb-row button');
   if (thumb) {
     const gallery = thumb.closest('.detail-gallery');
     const buttons = [...gallery.querySelectorAll('.thumb-row button[data-photo]')];
     setGalleryPhoto(gallery, buttons.indexOf(thumb));
+    if (gallery.classList.contains('skouzen-gallery')) {
+      openLightbox(gallery);
+      return;
+    }
     if (gallery.matches('[data-slideshow]')) startSlideshow(gallery.closest('.page'));
   }
 
   if (!event.target.closest('.site-header')) {
     closeMenu();
   }
+});
+
+window.addEventListener('keydown', event => {
+  if (!photoLightbox?.classList.contains('open')) return;
+  if (event.key === 'Escape') closeLightbox();
+  if (event.key === 'ArrowLeft') stepLightbox(-1);
+  if (event.key === 'ArrowRight') stepLightbox(1);
 });
 
 const form = document.getElementById('bookingForm');
@@ -218,6 +356,10 @@ if (mapHome && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   let rafId = null;
   let nextX = 0;
   let nextY = 0;
+  let orientationEnabled = false;
+  let orientationRafId = null;
+  let cardPanX = 0;
+  let cardPanY = 0;
 
   function applyMapMotion() {
     rafId = null;
@@ -232,6 +374,7 @@ if (mapHome && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   }
 
   mapHome.addEventListener('pointermove', event => {
+    if (mapHome.classList.contains('is-zooming')) return;
     if (event.pointerType === 'touch') return;
     const rect = mapHome.getBoundingClientRect();
     nextX = ((event.clientX - rect.left) / rect.width - .5) * 2;
@@ -244,4 +387,46 @@ if (mapHome && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     nextY = 0;
     if (!rafId) rafId = window.requestAnimationFrame(applyMapMotion);
   });
+
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function applyMobileCardMotion() {
+    orientationRafId = null;
+    mapHome.style.setProperty('--mobile-card-pan-x', `${cardPanX}px`);
+    mapHome.style.setProperty('--mobile-card-pan-y', `${cardPanY}px`);
+  }
+
+  function handleDeviceOrientation(event) {
+    if (!window.matchMedia('(max-width: 900px)').matches) return;
+    const gamma = event.gamma ?? 0;
+    const beta = event.beta ?? 0;
+    cardPanX = clamp(gamma, -18, 18) * -0.55;
+    cardPanY = clamp(beta - 45, -18, 18) * -0.42;
+    if (!orientationRafId) orientationRafId = window.requestAnimationFrame(applyMobileCardMotion);
+  }
+
+  function enableMobileOrientation() {
+    if (orientationEnabled || !window.matchMedia('(max-width: 900px)').matches) return;
+    orientationEnabled = true;
+    window.addEventListener('deviceorientation', handleDeviceOrientation, true);
+  }
+
+  function requestMobileOrientation() {
+    if (!window.matchMedia('(max-width: 900px)').matches) return;
+    const orientationEvent = window.DeviceOrientationEvent;
+    if (orientationEvent && typeof orientationEvent.requestPermission === 'function') {
+      orientationEvent.requestPermission()
+        .then(permission => {
+          if (permission === 'granted') enableMobileOrientation();
+        })
+        .catch(() => {});
+      return;
+    }
+    enableMobileOrientation();
+  }
+
+  requestMobileOrientation();
+  mapHome.addEventListener('pointerdown', requestMobileOrientation, { once: true });
 }
