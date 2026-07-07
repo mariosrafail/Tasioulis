@@ -260,8 +260,7 @@ document.addEventListener('click', event => {
     mapHotspot.classList.add('tap-pulse');
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isMobileMap = window.matchMedia('(max-width: 900px)').matches;
-    if (mapHome && !prefersReducedMotion && !isMobileMap) {
+    if (mapHome && !prefersReducedMotion) {
       mapHome.classList.add('is-zooming', `zoom-${targetRoute}`);
       mapHotspot.classList.add('is-selected');
     }
@@ -269,7 +268,7 @@ document.addEventListener('click', event => {
     mapZoomTimer = window.setTimeout(() => {
       showLoader('Loading');
       location.hash = targetRoute;
-    }, prefersReducedMotion || isMobileMap ? 120 : 940);
+    }, prefersReducedMotion ? 120 : 940);
     return;
   }
 
@@ -356,10 +355,6 @@ if (mapHome && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   let rafId = null;
   let nextX = 0;
   let nextY = 0;
-  let orientationEnabled = false;
-  let orientationRafId = null;
-  let cardPanX = 0;
-  let cardPanY = 0;
 
   function applyMapMotion() {
     rafId = null;
@@ -388,45 +383,4 @@ if (mapHome && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     if (!rafId) rafId = window.requestAnimationFrame(applyMapMotion);
   });
 
-  function clamp(value, min, max) {
-    return Math.min(max, Math.max(min, value));
-  }
-
-  function applyMobileCardMotion() {
-    orientationRafId = null;
-    mapHome.style.setProperty('--mobile-card-pan-x', `${cardPanX}px`);
-    mapHome.style.setProperty('--mobile-card-pan-y', `${cardPanY}px`);
-  }
-
-  function handleDeviceOrientation(event) {
-    if (!window.matchMedia('(max-width: 900px)').matches) return;
-    const gamma = event.gamma ?? 0;
-    const beta = event.beta ?? 0;
-    cardPanX = clamp(gamma, -18, 18) * -0.55;
-    cardPanY = clamp(beta - 45, -18, 18) * -0.42;
-    if (!orientationRafId) orientationRafId = window.requestAnimationFrame(applyMobileCardMotion);
-  }
-
-  function enableMobileOrientation() {
-    if (orientationEnabled || !window.matchMedia('(max-width: 900px)').matches) return;
-    orientationEnabled = true;
-    window.addEventListener('deviceorientation', handleDeviceOrientation, true);
-  }
-
-  function requestMobileOrientation() {
-    if (!window.matchMedia('(max-width: 900px)').matches) return;
-    const orientationEvent = window.DeviceOrientationEvent;
-    if (orientationEvent && typeof orientationEvent.requestPermission === 'function') {
-      orientationEvent.requestPermission()
-        .then(permission => {
-          if (permission === 'granted') enableMobileOrientation();
-        })
-        .catch(() => {});
-      return;
-    }
-    enableMobileOrientation();
-  }
-
-  requestMobileOrientation();
-  mapHome.addEventListener('pointerdown', requestMobileOrientation, { once: true });
 }
