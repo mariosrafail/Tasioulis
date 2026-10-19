@@ -23,6 +23,31 @@ let lightboxGallery = null;
 let lightboxIndex = 0;
 let currentRoute = null;
 
+// Keep destination buttons anchored to the SVG as its displayed size changes.
+function positionMapDestinations() {
+  if (!mapHome?.classList.contains('illustrated-map')) return;
+  const bounds = mapHome.getBoundingClientRect();
+  if (!bounds.width || !bounds.height) return;
+  const scale = Math.min(bounds.width / 1440, bounds.height / 1080);
+  const imageWidth = 1440 * scale;
+  const imageHeight = 1080 * scale;
+  const left = (bounds.width - imageWidth) / 2;
+  const top = (bounds.height - imageHeight) * (window.matchMedia('(max-width: 900px)').matches ? .7 : .5);
+  const mapDrawing = mapHome.querySelector('svg.map-home-image');
+  if (mapDrawing) {
+    mapDrawing.setAttribute('viewBox', `${-left / scale} ${-top / scale} ${bounds.width / scale} ${bounds.height / scale}`);
+  }
+  mapHome.querySelectorAll('[data-map-x]').forEach(button => {
+    button.style.left = `${left + Number(button.dataset.mapX) * imageWidth}px`;
+    button.style.top = `${top + Number(button.dataset.mapY) * imageHeight}px`;
+  });
+}
+
+if (mapHome) {
+  new ResizeObserver(positionMapDestinations).observe(mapHome);
+  positionMapDestinations();
+}
+
 function getRoute() {
   const route = location.hash.replace('#', '').trim() || 'home';
   return validRoutes.has(route) ? route : 'home';
@@ -38,7 +63,7 @@ function setActiveNav(route) {
     const linkRoute = link.getAttribute('href').replace('#', '');
     const isActive = route === linkRoute ||
       (['skouzen', 'pearl'].includes(route) && linkRoute === 'piraeus') ||
-      (['ivory', 'onyx'].includes(route) && linkRoute === 'spetses');
+      (route === 'ivory' && linkRoute === 'spetses');
     link.classList.toggle('active', isActive);
   });
 }
@@ -109,7 +134,7 @@ function startSlideshow(page) {
   stopSlideshow();
   const gallery = page?.querySelector('[data-slideshow]');
   if (!gallery || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  if (gallery.classList.contains('skouzen-gallery')) return;
+  if (gallery.classList.contains('skouzen-gallery') || gallery.hasAttribute('data-manual-gallery')) return;
   slideshowTimer = window.setInterval(() => stepGallery(gallery, 1), 5200);
 }
 
@@ -261,6 +286,15 @@ document.addEventListener('click', event => {
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (mapHome && !prefersReducedMotion) {
+      const mapBounds = mapHome.getBoundingClientRect();
+      const imageBounds = mapHome.querySelector('.map-home-image').getBoundingClientRect();
+      const destinationBounds = mapHotspot.getBoundingClientRect();
+      const destinationX = destinationBounds.left + destinationBounds.width / 2;
+      const destinationY = destinationBounds.top + destinationBounds.height / 2;
+      mapHome.style.setProperty('--map-focus-x', `${destinationX - imageBounds.left}px`);
+      mapHome.style.setProperty('--map-focus-y', `${destinationY - imageBounds.top}px`);
+      mapHome.style.setProperty('--map-zoom-x', `${mapBounds.left + mapBounds.width / 2 - destinationX}px`);
+      mapHome.style.setProperty('--map-zoom-y', `${mapBounds.top + mapBounds.height / 2 - destinationY}px`);
       mapHome.classList.add('is-zooming', `zoom-${targetRoute}`);
       mapHotspot.classList.add('is-selected');
     }
@@ -268,7 +302,7 @@ document.addEventListener('click', event => {
     mapZoomTimer = window.setTimeout(() => {
       showLoader('Loading');
       location.hash = targetRoute;
-    }, prefersReducedMotion ? 120 : 940);
+    }, prefersReducedMotion ? 0 : 1100);
     return;
   }
 
@@ -334,6 +368,11 @@ document.addEventListener('click', event => {
 });
 
 window.addEventListener('keydown', event => {
+  if (event.target.matches?.('.ivory-gallery .main-photo') && (event.key === 'Enter' || event.key === ' ')) {
+    event.preventDefault();
+    openLightbox(event.target.closest('[data-slideshow]'));
+    return;
+  }
   if (!photoLightbox?.classList.contains('open')) return;
   if (event.key === 'Escape') closeLightbox();
   if (event.key === 'ArrowLeft') stepLightbox(-1);
@@ -349,38 +388,4 @@ if (form) {
     note.textContent = `Έτοιμο αίτημα για ${data.property}. Σύνδεσέ το με email ή backend για πραγματική κράτηση.`;
     form.classList.add('sent');
   });
-}
-
-if (mapHome && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  let rafId = null;
-  let nextX = 0;
-  let nextY = 0;
-
-  function applyMapMotion() {
-    rafId = null;
-    mapHome.style.setProperty('--map-pan-x', `${nextX * -16}px`);
-    mapHome.style.setProperty('--map-pan-y', `${nextY * -12}px`);
-    mapHome.style.setProperty('--hotspot-pan-x', `${nextX * -11.5}px`);
-    mapHome.style.setProperty('--hotspot-pan-y', `${nextY * -8.5}px`);
-    mapHome.style.setProperty('--map-tilt-x', `${nextY * 2.6}deg`);
-    mapHome.style.setProperty('--map-tilt-y', `${nextX * -3.2}deg`);
-    mapHome.style.setProperty('--map-light-x', `${50 + nextX * 18}%`);
-    mapHome.style.setProperty('--map-light-y', `${48 + nextY * 14}%`);
-  }
-
-  mapHome.addEventListener('pointermove', event => {
-    if (mapHome.classList.contains('is-zooming')) return;
-    if (event.pointerType === 'touch') return;
-    const rect = mapHome.getBoundingClientRect();
-    nextX = ((event.clientX - rect.left) / rect.width - .5) * 2;
-    nextY = ((event.clientY - rect.top) / rect.height - .5) * 2;
-    if (!rafId) rafId = window.requestAnimationFrame(applyMapMotion);
-  });
-
-  mapHome.addEventListener('pointerleave', () => {
-    nextX = 0;
-    nextY = 0;
-    if (!rafId) rafId = window.requestAnimationFrame(applyMapMotion);
-  });
-
 }
