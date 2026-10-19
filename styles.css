@@ -3523,3 +3523,558 @@ textarea:focus {
     height: min(62svh, 480px);
   }
 }
+/* Shared UI and motion: one restrained rhythm across all routes. */
+:root {
+  --motion-ease: cubic-bezier(.22,.61,.36,1);
+  --motion-fast: 180ms;
+  --motion-enter: 380ms;
+}
+.page.active {
+  animation: none;
+  opacity: 1;
+  transition: opacity 120ms ease;
+}
+.page.active.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+.reveal-up {
+  animation: none;
+}
+.play-in {
+  animation: contentEnter var(--motion-enter) var(--motion-ease) both;
+  animation-delay: var(--enter-delay, 0ms);
+}
+@keyframes contentEnter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+.photo-pop {
+  animation: photoSettle 220ms ease both;
+}
+@keyframes photoSettle {
+  from { opacity: .65; }
+  to { opacity: 1; }
+}
+.loader {
+  transition: opacity 180ms ease, visibility 180ms ease;
+}
+.site-header {
+  transition: background 180ms ease, box-shadow 180ms ease;
+}
+.property-card,
+.detail-gallery,
+.booking-form,
+.booking-copy,
+.contact-card {
+  border-radius: 8px;
+}
+.btn,
+.contact-links a {
+  border-radius: 4px;
+}
+.btn,
+.floating-book,
+.contact-links a {
+  transition: background var(--motion-fast) ease, color var(--motion-fast) ease, border-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease;
+}
+.btn:hover,
+.floating-book:hover,
+.contact-links a:hover {
+  transform: none;
+}
+.btn.primary:hover,
+.floating-book:hover {
+  background: #29565b;
+  border-color: #29565b;
+}
+.property-card {
+  transition: box-shadow 220ms ease, border-color 220ms ease;
+}
+.property-card:hover,
+.property-card:nth-child(even):hover {
+  transform: none;
+  border-color: rgba(33,77,82,.24);
+  box-shadow: 0 12px 32px rgba(23,47,53,.1);
+}
+.property-card img,
+.main-photo,
+.skouzen-page .skouzen-gallery .main-photo,
+.skouzen-page .skouzen-gallery .thumb-row img {
+  filter: none;
+}
+.property-card:hover img,
+.slideshow-stage:hover .main-photo,
+.skouzen-page .skouzen-gallery .slideshow-stage:hover .main-photo,
+.skouzen-page .skouzen-gallery button:hover img {
+  transform: none;
+  filter: none;
+}
+.thumb-row button,
+.slide-control {
+  transition: opacity var(--motion-fast) ease, background var(--motion-fast) ease, box-shadow var(--motion-fast) ease;
+}
+.thumb-row button:hover img {
+  transform: none;
+}
+.thumb-row button.active {
+  opacity: 1;
+  box-shadow: inset 0 -3px 0 #29565b;
+}
+.slideshow-thumbs {
+  position: relative;
+}
+.lightbox-image,
+.photo-lightbox.open .lightbox-image,
+.photo-lightbox.open .lightbox-image.is-changing {
+  transform: none;
+  filter: none;
+  transition: opacity 160ms ease;
+}
+.photo-lightbox.open .lightbox-image.is-changing {
+  opacity: 0;
+}
+.piraeus-photo-hero::before,
+.piraeus-photo-hero::after {
+  animation-duration: 32s;
+}
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid #29565b;
+  outline-offset: 4px;
+}
+.lightbox-close:focus-visible,
+.lightbox-nav:focus-visible {
+  outline-color: #fffaf0;
+}
+@media (hover: none) {
+  .property-card:hover,
+  .property-card:nth-child(even):hover {
+    box-shadow: var(--soft-shadow);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  .piraeus-photo-hero::before { opacity: 1; }
+  .piraeus-photo-hero::after { opacity: 0; }
+}
+.booking-copy h1,
+.contact-card h1 {
+  font-size: clamp(40px, 5vw, 72px);
+  line-height: 1.08;
+  text-wrap: balance;
+}
+/* Elements form controls and popovers. */
+.page.active.map-exit { transition-duration: 260ms; }
+.booking-form label {
+  color: #526263;
+  line-height: 1.5;
+}
+.booking-form input,
+.booking-form textarea,
+.field-trigger,
+.guest-counter {
+  border: 1px solid #d8dcd4;
+  border-radius: 6px;
+  background: #fcfaf5;
+  color: #173f43;
+  box-shadow: none;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.5;
+  text-transform: none;
+}
+.booking-form input,
+.booking-form textarea,
+.field-trigger {
+  min-height: 50px;
+  padding: 13px 16px;
+}
+.booking-form textarea { min-height: 130px; }
+.booking-form input::placeholder,
+.booking-form textarea::placeholder { color: #7a8582; }
+.booking-form input:focus,
+.booking-form textarea:focus,
+.field-trigger[aria-expanded="true"],
+.guest-counter:focus-within {
+  border-color: #29565b;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(41,86,91,.1);
+}
+.field-widget {
+  position: relative;
+  display: block;
+  min-width: 0;
+  isolation: auto;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.booking-form .control-source {
+  display: none;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  clip-path: inset(50%);
+  pointer-events: none;
+}
+.field-trigger {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+.field-trigger::after {
+  content: "";
+  flex: 0 0 7px;
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 180ms ease;
+}
+.field-trigger[aria-expanded="true"]::after { transform: translateY(2px) rotate(225deg); }
+.date-widget .field-trigger {
+  font-size: 13px;
+}
+.date-widget .field-trigger::after {
+  width: 14px;
+  height: 14px;
+  flex-basis: 14px;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  background: linear-gradient(currentColor,currentColor) center 3px / 100% 1px no-repeat;
+  transform: none;
+}
+.field-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 30;
+  display: block;
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #d8dcd4;
+  border-radius: 8px;
+  background: #fffdf7;
+  box-shadow: 0 14px 40px rgba(23,63,67,.14);
+  color: #173f43;
+  animation: controlOpen 160ms ease both;
+}
+.field-popover[hidden] { display: none; }
+.field-option {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 46px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #173f43;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  cursor: pointer;
+}
+.field-option:hover,
+.field-option:focus-visible,
+.field-option[aria-selected="true"] {
+  background: #e9f0e9;
+  outline: none;
+}
+.field-option[aria-selected="true"]::after { content: "✓"; color: #29565b; }
+.date-widget .field-popover { width: 290px; max-width: calc(100vw - 64px); padding: 14px; }
+.date-widget:has(input[name="checkout"]) .field-popover { left: auto; right: 0; }
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.calendar-nav,
+.calendar-day,
+.counter-button {
+  display: grid;
+  place-items: center;
+  min-height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #173f43;
+  cursor: pointer;
+  font: inherit;
+  letter-spacing: 0;
+}
+.calendar-nav { width: 34px; font-size: 25px; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 2px; }
+.calendar-weekday { padding: 5px 0; text-align: center; font-size: 10px; color: #7a8582; }
+.calendar-day { font-size: 12px; font-weight: 400; }
+.calendar-day.is-today { box-shadow: inset 0 0 0 1px #b3c8c5; }
+.calendar-day:hover:not(:disabled),
+.calendar-nav:hover:not(:disabled),
+.counter-button:hover:not(:disabled) { background: #e9f0e9; }
+.calendar-day[aria-pressed="true"] { background: #29565b; color: #fffdf7; }
+.calendar-day:disabled,
+.calendar-nav:disabled,
+.counter-button:disabled { opacity: .28; cursor: default; }
+.guest-counter { display: flex; align-items: center; padding: 5px; }
+.guest-counter .counter-button { flex: 0 0 38px; height: 38px; font-size: 22px; }
+.booking-form .guest-counter input {
+  min-width: 0;
+  min-height: 38px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: center;
+  appearance: textfield;
+  -moz-appearance: textfield;
+  box-shadow: none;
+}
+.guest-counter input::-webkit-inner-spin-button,
+.guest-counter input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.field-trigger[aria-invalid="true"] { border-color: #a04f40; }
+@keyframes controlOpen { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@media (max-width: 900px) {
+  .site-header .nav {
+    left: 14px;
+    right: 14px;
+    top: calc(var(--header-h) + 8px);
+    overflow: hidden;
+    padding: 6px;
+    border: 1px solid #d8dcd4;
+    border-radius: 8px;
+    background: #fffdf7;
+    box-shadow: 0 14px 40px rgba(23,63,67,.14);
+  }
+  .site-header .nav a {
+    border: 0;
+    border-radius: 4px;
+    padding: 15px 16px;
+    color: #173f43;
+  }
+  .site-header .nav a.active,
+  .site-header .nav a:hover { background: #e9f0e9; }
+  .menu-toggle { border-radius: 4px; background: #173f43; border-color: #173f43; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .field-popover { animation: none; }
+  .page.active.map-exit { transition: none; }
+}
+
+/* One shape for every interactive control. */
+:root { --control-radius: 6px; }
+.btn,
+.floating-book,
+.map-hotspot,
+.menu-toggle,
+.slide-control,
+.lightbox-nav,
+.lightbox-close,
+.field-trigger,
+.field-option,
+.calendar-nav,
+.calendar-day,
+.counter-button,
+.contact-links a,
+.site-header .nav a,
+.ivory-gallery .thumb-row button,
+.skouzen-page .skouzen-gallery .thumb-row button {
+  border-radius: var(--control-radius);
+}
+.slide-control,
+.lightbox-nav {
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255,253,247,.8);
+  background: rgba(255,253,247,.9);
+  color: #29565b;
+  box-shadow: 0 3px 12px rgba(23,47,53,.09);
+  backdrop-filter: blur(8px);
+  transform: translateY(-50%);
+  transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+.slide-control::before,
+.lightbox-nav::before {
+  width: 9px;
+  height: 9px;
+  border-top-width: 1.5px;
+  border-right-width: 1.5px;
+}
+.slide-control:hover,
+.lightbox-nav:hover {
+  background: #fffdf7;
+  border-color: #b5c7c4;
+  box-shadow: 0 4px 16px rgba(23,47,53,.14);
+  transform: translateY(-50%);
+}
+.slide-control:active,
+.lightbox-nav:active { background: #e9f0e9; }
+.lightbox-close {
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255,253,247,.8);
+  background: rgba(255,253,247,.9);
+  color: #29565b;
+  transform: none;
+  transition: background 180ms ease;
+}
+.lightbox-close::before,
+.lightbox-close::after { height: 1.5px; width: 16px; }
+.lightbox-close:hover { background: #fffdf7; transform: none; }
+.slide-counter,
+.lightbox-counter {
+  border-radius: var(--control-radius);
+  font-weight: 500;
+  letter-spacing: .08em;
+}
+.slide-counter {
+  border: 1px solid rgba(255,253,247,.22);
+  background: rgba(23,47,53,.68);
+  padding: 7px 10px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .slide-control,
+  .lightbox-nav,
+  .lightbox-close { transition: none; }
+}
+/* Cinematic transitions: layered reveals, staggered typography and photo depth. */
+:root { --motion-enter: 760ms; }
+.page.active.scene-reveal {
+  animation: sceneReveal 760ms cubic-bezier(.16,1,.3,1) both;
+}
+.page.active.scene-destination {
+  animation: destinationReveal 900ms cubic-bezier(.16,1,.3,1) both;
+}
+.page.active.scene-home {
+  animation: homeWelcome 600ms ease backwards;
+}
+.page.active:not(.page-home).is-leaving {
+  animation: sceneDepart 180ms ease both;
+}
+@keyframes sceneDepart {
+  to { opacity: 0; transform: translateY(-18px) scale(.975); filter: blur(3px); }
+}
+@keyframes sceneReveal {
+  from { clip-path: inset(100% 0 0 0); transform: translateY(40px) scale(1.035); }
+  to { clip-path: inset(0); transform: none; }
+}
+@keyframes destinationReveal {
+  from { opacity: .25; clip-path: circle(8% at 50% 50%); transform: scale(1.07); }
+  to { opacity: 1; clip-path: circle(150% at 50% 50%); transform: none; }
+}
+.play-in {
+  animation: cinematicEnter 760ms cubic-bezier(.16,1,.3,1) both;
+  animation-delay: var(--enter-delay, 0ms);
+}
+@keyframes cinematicEnter {
+  from { opacity: 0; transform: translateY(32px) scale(.975); }
+  to { opacity: 1; transform: none; }
+}
+.motion-word {
+  display: inline-block;
+  transform-origin: 50% 100%;
+}
+.play-in .motion-word {
+  animation: titleReveal 850ms cubic-bezier(.16,1,.3,1) both;
+  animation-delay: calc(var(--enter-delay, 0ms) + var(--word-delay, 0ms) + 80ms);
+}
+@keyframes titleReveal {
+  from { opacity: 0; transform: translateY(32px) rotateX(35deg); filter: blur(3px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+.photo-previous {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  animation: photoDepart 650ms cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes photoDepart {
+  to { opacity: 0; transform: translateX(calc(var(--photo-shift, 24px) * -1)) scale(1.035); }
+}
+.photo-pop {
+  animation: photoArrive 700ms cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes photoArrive {
+  from { opacity: .3; transform: translateX(var(--photo-shift, 24px)) scale(1.04); }
+  to { opacity: 1; transform: none; }
+}
+.photo-lightbox.open .lightbox-image {
+  animation: lightboxArrival 600ms cubic-bezier(.16,1,.3,1) backwards;
+}
+@keyframes lightboxArrival {
+  from { opacity: 0; transform: translateY(20px) scale(.94); }
+  to { opacity: 1; transform: none; }
+}
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: -80% -50%;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 42%, rgba(255,255,255,.18) 50%, transparent 58%);
+  transform: translateX(-80%);
+}
+@media (hover: hover) {
+  .btn:hover::after { animation: buttonGleam 750ms cubic-bezier(.2,.8,.2,1) both; }
+}
+@keyframes buttonGleam { to { transform: translateX(80%); } }
+.field-popover {
+  transform-origin: top center;
+  animation: popoverReveal 300ms cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes popoverReveal {
+  from { opacity: 0; transform: translateY(-8px) scale(.97); clip-path: inset(0 0 100% 0 round 8px); }
+  to { opacity: 1; transform: none; clip-path: inset(0 round 8px); }
+}
+@media (max-width: 900px) {
+  .site-header .nav {
+    transform-origin: top right;
+    transition: opacity 260ms ease, visibility 260ms ease, transform 400ms cubic-bezier(.16,1,.3,1);
+    transform: translateY(-12px) scale(.97);
+  }
+  .site-header .nav.open { transform: none; }
+  .site-header .nav.open a {
+    animation: navigationReveal 440ms cubic-bezier(.16,1,.3,1) both;
+  }
+  .site-header .nav.open a:nth-child(2) { animation-delay: 40ms; }
+  .site-header .nav.open a:nth-child(3) { animation-delay: 80ms; }
+  .site-header .nav.open a:nth-child(4) { animation-delay: 120ms; }
+  .site-header .nav.open a:nth-child(5) { animation-delay: 160ms; }
+}
+@keyframes navigationReveal {
+  from { opacity: 0; transform: translateX(18px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .photo-previous { display: none; }
+}

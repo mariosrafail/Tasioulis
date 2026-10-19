@@ -5,7 +5,6 @@ const menuToggle = document.getElementById('menuToggle');
 const mainNav = document.getElementById('mainNav');
 const propertySelect = document.getElementById('propertySelect');
 const loader = document.getElementById('loader');
-const loaderText = loader ? loader.querySelector('p') : null;
 const mapHome = document.querySelector('.map-home');
 const slideshows = [...document.querySelectorAll('[data-slideshow]')];
 const photoLightbox = document.getElementById('photoLightbox');
@@ -22,6 +21,9 @@ let mapZoomTimer = null;
 let lightboxGallery = null;
 let lightboxIndex = 0;
 let currentRoute = null;
+let lightboxPhotoTimer = null;
+let lightboxTrigger = null;
+const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Keep destination buttons anchored to the SVG as its displayed size changes.
 function positionMapDestinations() {
@@ -65,16 +67,9 @@ function setActiveNav(route) {
       (['skouzen', 'pearl'].includes(route) && linkRoute === 'piraeus') ||
       (route === 'ivory' && linkRoute === 'spetses');
     link.classList.toggle('active', isActive);
+    if (isActive) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
   });
-}
-
-function showLoader(text = 'Loading your next stay') {
-  if (!loader) return;
-  window.clearTimeout(loaderTimer);
-  if (loaderText) loaderText.textContent = text;
-  loader.classList.remove('hide');
-  loader.classList.add('route-loading');
-  document.body.classList.add('is-loading-route');
 }
 
 function hideLoader() {
@@ -83,13 +78,29 @@ function hideLoader() {
     loader.classList.add('hide');
     loader.classList.remove('route-loading');
     document.body.classList.remove('is-loading-route');
-  }, 180);
+  }, 0);
 }
 
 function animateActivePage(page) {
+  page.querySelectorAll('h1, h2').forEach(heading => {
+    if (heading.closest('.map-home-copy') || heading.dataset.motionPrepared) return;
+    const words = heading.textContent.trim().split(/\s+/);
+    heading.replaceChildren();
+    words.forEach((word, index) => {
+      if (index) heading.append(document.createTextNode(' '));
+      const span = document.createElement('span');
+      span.className = 'motion-word';
+      span.style.setProperty('--word-delay', `${Math.min(index, 6) * 55}ms`);
+      span.textContent = word;
+      heading.append(span);
+    });
+    heading.dataset.motionPrepared = 'true';
+  });
   const animatedItems = page.querySelectorAll('.reveal-up, .property-card, .detail-gallery, .detail-copy, .booking-copy, .booking-form, .contact-card');
-  animatedItems.forEach(item => {
+  const topLevelItems = [...animatedItems].filter(item => !item.parentElement.closest('.reveal-up, .property-card, .detail-gallery, .detail-copy, .booking-copy, .booking-form, .contact-card'));
+  topLevelItems.forEach((item, index) => {
     item.classList.remove('play-in');
+    item.style.setProperty('--enter-delay', `${Math.min(index, 3) * 100}ms`);
     void item.offsetWidth;
     item.classList.add('play-in');
   });
@@ -102,11 +113,32 @@ function setGalleryPhoto(gallery, index) {
 
   const nextIndex = (index + buttons.length) % buttons.length;
   const selected = buttons[nextIndex];
+  const activeIndex = Math.max(0, buttons.findIndex(button => button.classList.contains('active')));
+  const photoChanged = mainPhoto.getAttribute('src') !== selected.dataset.photo;
+  gallery.style.setProperty('--photo-shift', nextIndex >= activeIndex ? '24px' : '-24px');
+  if (photoChanged && !reduceMotion() && mainPhoto.complete && mainPhoto.naturalWidth && mainPhoto.parentElement.classList.contains('slideshow-stage')) {
+    gallery.querySelectorAll('.photo-previous').forEach(photo => photo.remove());
+    const previous = mainPhoto.cloneNode(false);
+    previous.className = 'photo-previous';
+    previous.removeAttribute('tabindex');
+    previous.removeAttribute('role');
+    previous.removeAttribute('aria-label');
+    previous.setAttribute('aria-hidden', 'true');
+    previous.alt = '';
+    previous.style.objectFit = getComputedStyle(mainPhoto).objectFit;
+    previous.style.objectPosition = getComputedStyle(mainPhoto).objectPosition;
+    mainPhoto.after(previous);
+    previous.addEventListener('animationend', () => previous.remove(), { once: true });
+    window.setTimeout(() => previous.remove(), 900);
+  }
   mainPhoto.src = selected.dataset.photo;
   mainPhoto.alt = selected.querySelector('img')?.alt || 'Apartment photo';
   mainPhoto.classList.remove('photo-pop');
-  void mainPhoto.offsetWidth;
-  mainPhoto.classList.add('photo-pop');
+  mainPhoto.onload = () => {
+    mainPhoto.classList.remove('photo-pop');
+    void mainPhoto.offsetWidth;
+    if (photoChanged) mainPhoto.classList.add('photo-pop');
+  };
 
   buttons.forEach((button, buttonIndex) => {
     button.classList.toggle('active', buttonIndex === nextIndex);
@@ -116,7 +148,11 @@ function setGalleryPhoto(gallery, index) {
   const total = gallery.querySelector('[data-slide-total]');
   if (current) current.textContent = String(nextIndex + 1);
   if (total) total.textContent = String(buttons.length);
-  selected.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  // Scroll only the thumbnail strip; never move the page or a lightbox behind it.
+  const strip = selected.closest('.thumb-row');
+  if (strip && strip.scrollWidth > strip.clientWidth) {
+    strip.scrollTo({ left: selected.offsetLeft - strip.offsetLeft - (strip.clientWidth - selected.offsetWidth) / 2, behavior: reduceMotion() ? 'auto' : 'smooth' });
+  }
 }
 
 function stepGallery(gallery, direction = 1) {
@@ -149,6 +185,7 @@ function setLightboxPhoto(index) {
 
   lightboxIndex = (index + buttons.length) % buttons.length;
   const selected = buttons[lightboxIndex];
+  window.clearTimeout(lightboxPhotoTimer);
 
   const applyPhoto = () => {
     lightboxImage.src = selected.dataset.photo;
@@ -158,7 +195,7 @@ function setLightboxPhoto(index) {
 
   if (photoLightbox.classList.contains('open')) {
     lightboxImage.classList.add('is-changing');
-    window.setTimeout(applyPhoto, 150);
+    lightboxPhotoTimer = window.setTimeout(applyPhoto, reduceMotion() ? 0 : 100);
   } else {
     applyPhoto();
   }
@@ -174,21 +211,26 @@ function openLightbox(gallery) {
   if (!buttons.length) return;
 
   lightboxGallery = gallery;
+  lightboxTrigger = document.activeElement;
   lightboxIndex = Math.max(0, buttons.findIndex(button => button.classList.contains('active')));
   stopSlideshow();
   setLightboxPhoto(lightboxIndex);
   photoLightbox.classList.add('open');
   photoLightbox.setAttribute('aria-hidden', 'false');
   document.body.classList.add('lightbox-open');
+  photoLightbox.querySelector('[data-lightbox-close]').focus({ preventScroll: true });
 }
 
 function closeLightbox() {
   if (!photoLightbox) return;
+  window.clearTimeout(lightboxPhotoTimer);
   photoLightbox.classList.remove('open');
   photoLightbox.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('lightbox-open');
   if (lightboxGallery) startSlideshow(lightboxGallery.closest('.page'));
   lightboxGallery = null;
+  lightboxTrigger?.focus({ preventScroll: true });
+  lightboxTrigger = null;
 }
 
 function stepLightbox(direction) {
@@ -196,9 +238,18 @@ function stepLightbox(direction) {
   setLightboxPhoto(lightboxIndex + direction);
 }
 
-function renderRoute(route) {
-  pages.forEach(page => page.classList.toggle('active', page.dataset.route === route));
+function renderRoute(route, motion = null) {
+  pages.forEach(page => {
+    const isActive = page.dataset.route === route;
+    page.classList.remove('is-leaving', 'map-exit', 'scene-reveal', 'scene-destination', 'scene-home');
+    page.classList.toggle('active', isActive);
+    page.inert = !isActive;
+    page.setAttribute('aria-hidden', String(!isActive));
+  });
   const activePage = pages.find(page => page.dataset.route === route);
+  if (motion && !reduceMotion()) {
+    activePage?.classList.add(route === 'home' ? 'scene-home' : motion === 'destination' ? 'scene-destination' : 'scene-reveal');
+  }
   document.body.classList.toggle('route-home', route === 'home');
   document.body.classList.toggle('route-inner', route !== 'home');
   if (route === 'home') resetMapZoom();
@@ -208,11 +259,29 @@ function renderRoute(route) {
 
   if (route === 'book' && pendingProperty && propertySelect) {
     propertySelect.value = pendingProperty;
+    propertySelect.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
   if (activePage) animateActivePage(activePage);
   startSlideshow(activePage);
   currentRoute = route;
+}
+
+function transitionToRoute(route) {
+  window.clearTimeout(routeTimer);
+  const activePage = pages.find(page => page.classList.contains('active'));
+  const fromMapZoom = mapHome?.classList.contains('is-zooming');
+  const delay = reduceMotion() || currentRoute === route ? 0 : fromMapZoom ? 260 : 180;
+  if (delay) {
+    activePage?.classList.toggle('map-exit', fromMapZoom);
+    activePage?.classList.add('is-leaving');
+  }
+  closeMenu();
+  stopSlideshow();
+  routeTimer = window.setTimeout(() => {
+    renderRoute(route, fromMapZoom ? 'destination' : 'page');
+    hideLoader();
+  }, delay);
 }
 
 function resetMapZoom() {
@@ -224,15 +293,10 @@ function resetMapZoom() {
   });
 }
 
-function showRouteWithLoading() {
+function handleRouteChange() {
   const route = getRoute();
   cleanHomeHash();
-  window.clearTimeout(routeTimer);
-  showLoader('Loading');
-  routeTimer = window.setTimeout(() => {
-    renderRoute(route);
-    hideLoader();
-  }, 520);
+  transitionToRoute(route);
 }
 
 function closeMenu() {
@@ -242,7 +306,8 @@ function closeMenu() {
   menuToggle.setAttribute('aria-expanded', 'false');
 }
 
-window.addEventListener('hashchange', showRouteWithLoading);
+window.addEventListener('hashchange', handleRouteChange);
+window.addEventListener('popstate', handleRouteChange);
 window.addEventListener('scroll', () => {
   header.classList.toggle('scrolled', window.scrollY > 10);
 });
@@ -250,7 +315,7 @@ window.addEventListener('scroll', () => {
 window.addEventListener('load', () => {
   cleanHomeHash();
   renderRoute(getRoute());
-  window.setTimeout(() => hideLoader(), 650);
+  hideLoader();
 });
 
 menuToggle.addEventListener('click', () => {
@@ -263,13 +328,8 @@ document.addEventListener('click', event => {
   const homeLink = event.target.closest('[data-home-link]');
   if (homeLink) {
     event.preventDefault();
-    if (currentRoute !== 'home') showLoader('Loading');
     history.pushState(null, '', location.pathname + location.search);
-    window.clearTimeout(routeTimer);
-    routeTimer = window.setTimeout(() => {
-      renderRoute('home');
-      hideLoader();
-    }, currentRoute === 'home' ? 0 : 520);
+    transitionToRoute('home');
     return;
   }
 
@@ -300,18 +360,9 @@ document.addEventListener('click', event => {
     }
 
     mapZoomTimer = window.setTimeout(() => {
-      showLoader('Loading');
       location.hash = targetRoute;
     }, prefersReducedMotion ? 0 : 1100);
     return;
-  }
-
-  const hashLink = event.target.closest('a[href^="#"]');
-  if (hashLink) {
-    const targetRoute = hashLink.getAttribute('href').replace('#', '') || 'home';
-    if (targetRoute && targetRoute !== currentRoute) {
-      showLoader('Loading');
-    }
   }
 
   const bookLink = event.target.closest('[data-book-property]');
@@ -374,6 +425,18 @@ window.addEventListener('keydown', event => {
     return;
   }
   if (!photoLightbox?.classList.contains('open')) return;
+  if (event.key === 'Tab') {
+    const controls = [...photoLightbox.querySelectorAll('button')];
+    const first = controls[0];
+    const last = controls[controls.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
   if (event.key === 'Escape') closeLightbox();
   if (event.key === 'ArrowLeft') stepLightbox(-1);
   if (event.key === 'ArrowRight') stepLightbox(1);
@@ -385,7 +448,7 @@ if (form) {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(form));
     const note = document.getElementById('formNote');
-    note.textContent = `Έτοιμο αίτημα για ${data.property}. Σύνδεσέ το με email ή backend για πραγματική κράτηση.`;
+    note.textContent = `Προεπισκόπηση για το ${data.property}. Το αίτημα δεν έχει αποσταλεί.`;
     form.classList.add('sent');
   });
 }
