@@ -6,7 +6,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "esbuild admin/auth-client.js --bundle --minify --format=esm --outfile=public/admin-auth.js",
+    "build": "esbuild admin/auth-client.js --bundle --minify --format=esm --outfile=public/admin-auth.js && node scripts/build-site.mjs",
     "start": "node server/index.js",
     "dev": "npm run build && node --watch server/index.js",
     "migrate": "node server/migrate.js",
@@ -18,7 +18,8 @@
     "express": "^5.3.0",
     "express-rate-limit": "^8.7.1",
     "helmet": "^8.3.0",
-    "pg": "^8.23.1"
+    "pg": "^8.23.1",
+    "serverless-http": "^4.0.0"
   },
   "devDependencies": {
     "esbuild": "^0.28.2"

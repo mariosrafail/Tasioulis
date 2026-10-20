@@ -1,17 +1,20 @@
 import express from 'express';
 import helmet from 'helmet';
-import { rateLimit } from 'express-rate-limit';
+import { rateLimit, ipKeyGenerator } from 'express-rate-limit';
+import { isIP } from 'node:net';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { adminEmails, athensToday, InputError, properties, textField } from './config.js';
 import { createReservation, updateReservation } from './reservations.js';
 import { localizeAuthCookie } from './auth-cookies.js';
 
-const root = fileURLToPath(new URL('../', import.meta.url));
 const authCookieToUpstream = cookie => (cookie || '').replace(/elements-secure-/g, '__Secure-').replace(/elements-host-/g, '__Host-');
-export function createApp(pool) {
+export function createApp(pool, {serveStatic=true, netlify=false, staticRoot=process.cwd()} = {}) {
   const app = express();
   app.disable('x-powered-by');
+  const limitOptions = netlify ? {keyGenerator:req=>{
+    const address=req.get('x-nf-client-connection-ip');
+    return ipKeyGenerator(address && isIP(address) ? address : req.ip);
+  }} : {};
   app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false, strictTransportSecurity: process.env.NODE_ENV === 'production' ? undefined : false }));
   app.use('/api', (_req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
   app.use(express.json({ limit: '12kb' }));
@@ -40,7 +43,7 @@ export function createApp(pool) {
   // Only the login/session methods used by this admin are exposed here.
   const passwordChangePaths = new Set(['forget-password/email-otp','email-otp/reset-password']);
   const authPaths = new Set(['get-session','sign-in/email-otp','sign-in/email','email-otp/send-verification-otp','request-password-reset','reset-password','sign-out', ...passwordChangePaths]);
-  app.use('/api/auth', rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false }), async (req, res) => {
+  app.use('/api/auth', rateLimit({ ...limitOptions, windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false }), async (req, res) => {
     const route = req.path.replace(/^\//, '');
     if (!authUrl() || !adminEmails().length) throw new InputError('Η πρόσβαση διαχειριστή δεν έχει ρυθμιστεί ακόμη.', 503);
     if (!authPaths.has(route) || !['GET','POST'].includes(req.method)) throw new InputError('Η ενέργεια δεν υποστηρίζεται.', 404);
@@ -71,7 +74,7 @@ export function createApp(pool) {
     const { rows } = await pool.query(`SELECT to_char(stay_date,'YYYY-MM-DD') AS date FROM occupied_nights WHERE property=$1 AND stay_date >= $2::date ORDER BY stay_date`, [property, athensToday()]);
     res.json({ property, dates: rows.map(row => row.date) });
   });
-  app.post('/api/bookings', rateLimit({ windowMs: 60 * 60 * 1000, limit: 6, standardHeaders: true, legacyHeaders: false }), requireDb, async (req, res) => {
+  app.post('/api/bookings', rateLimit({ ...limitOptions, windowMs: 60 * 60 * 1000, limit: 6, standardHeaders: true, legacyHeaders: false }), requireDb, async (req, res) => {
     if (!authUrl() || !adminEmails().length) throw new InputError('Οι online κρατήσεις θα ενεργοποιηθούν σύντομα. Για κράτηση, κάλεσε το τηλέφωνο του καταλύματος.', 503);
     if (req.body.website) throw new InputError('Το αίτημα δεν μπορεί να σταλεί.');
     const name = textField(req.body.name, 120, true);
@@ -101,6 +104,8 @@ export function createApp(pool) {
     res.json({ ok: true });
   });
   app.use('/api', (_req, _res, next) => next(new InputError('Δεν βρέθηκε.', 404)));
+  if (serveStatic) {
+  const root = path.resolve(staticRoot);
   app.get(['/admin', '/admin/'], (_req, res) => res.set('Cache-Control','no-store').sendFile(path.join(root, 'admin/index.html')));
   app.get('/admin/reset-password', (_req, res) => res.set({ 'Cache-Control':'no-store', 'Referrer-Policy':'no-referrer' }).sendFile(path.join(root, 'admin/reset-password.html')));
   app.use('/admin', express.static(path.join(root, 'admin'), { index: false, dotfiles: 'deny' }));
@@ -108,6 +113,7 @@ export function createApp(pool) {
   app.use('/assets', express.static(path.join(root, 'assets'), { dotfiles: 'deny', maxAge: '1d' }));
   for (const file of ['index.html','styles.css','app.js','ui-controls.js','booking.js']) {
     app.get(file === 'index.html' ? ['/', '/index.html'] : `/${file}`, (_req, res) => res.sendFile(path.join(root, file)));
+  }
   }
   app.use((_req, res) => res.status(404).send('Δεν βρέθηκε.'));
   app.use((error, _req, res, _next) => {

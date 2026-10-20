@@ -80,6 +80,26 @@ origin checks, and private-file exposure.
 
 ## Hosting
 
+### Netlify
+
+The existing project is `elementssrooms` at `https://elementssrooms.netlify.app`.
+`netlify.toml` builds the frontend into `dist/`, and `/api/*` is handled by the
+Express adapter in `netlify/functions/api.mjs`. Only explicitly selected public
+files are copied into `dist/`; server sources, password maintenance scripts,
+original photo backups and environment files are excluded.
+
+The production environment variables are managed privately in Netlify:
+`DATABASE_URL`, `NEON_AUTH_BASE_URL`, `ADMIN_EMAILS`, `APP_ORIGIN`, `NODE_ENV`.
+Do not put their values in `netlify.toml` or Git. `APP_ORIGIN` must match the HTTPS
+public origin, which must also be registered in Neon Auth trusted domains.
+Production uses the existing production database and accounts; no migration or
+account recreation is needed during deployment. Migrations run separately.
+
+Future pushes to `main` use `npm run build`, publish `dist/`, and package
+`netlify/functions/`. Local development still uses `npm start`.
+
+### Other Node hosts
+
 Deploy on a Node-compatible host using `npm ci && npm run build`, then `npm start`.
 Set `HOST=0.0.0.0`, `NODE_ENV=production`, the host's `PORT`, the public HTTPS
 `APP_ORIGIN`, both database URLs, `NEON_AUTH_BASE_URL`, and `ADMIN_EMAILS` as host
@@ -88,4 +108,5 @@ Configure custom SMTP in Neon Auth for production delivery. The local setup uses
 Neon's managed development email delivery. Do not upload `.env.local` or source
 transfer backups. Run migrations as a separate release step.
 
-The repository changes do not publish the application to a hosting provider.
+The linked Netlify project deploys pushes to `main` automatically. Other hosts
+need their own deployment configuration.
