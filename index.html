@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0f3d43" />
   <title>Elements</title>
   <meta name="description" content="Elements — διαμονή στον Πειραιά και στις Σπέτσες. Ανακάλυψε τα SkouZen, Pearl και Ivory." />
-  <link rel="stylesheet" href="styles.css?v=20261019-11c" />
+  <link rel="stylesheet" href="styles.css?v=20261020-17" />
 </head>
 <body>
   <div id="loader" class="loader" aria-label="Φόρτωση σελίδας">
@@ -29,8 +29,21 @@
 
     <nav class="nav" id="mainNav" aria-label="Κύριο μενού">
       <a href="index.html" data-home-link>Αρχική</a>
-      <a href="#piraeus">Πειραιάς</a>
-      <a href="#spetses">Σπέτσες</a>
+      <div class="nav-destination" data-destination="piraeus">
+        <button class="nav-destination-trigger" type="button" aria-expanded="false" aria-controls="piraeusMenu">Πειραιάς</button>
+        <div class="destination-menu" id="piraeusMenu" inert aria-hidden="true">
+          <a class="destination-overview" href="#piraeus">Όλα τα καταλύματα στον Πειραιά <span aria-hidden="true">↗</span></a>
+          <a class="destination-property" href="#skouzen"><img src="assets/skouzen/skouzen-01.jpg" alt="" width="64" height="52" /><span>SkouZen<small>Μικρό διαμέρισμα</small></span></a>
+          <a class="destination-property" href="#pearl"><img src="assets/pearl/thumbs/pearl-01-living-marina.webp" alt="" width="64" height="52" /><span>Pearl<small>Θέα στη μαρίνα</small></span></a>
+        </div>
+      </div>
+      <div class="nav-destination" data-destination="spetses">
+        <button class="nav-destination-trigger" type="button" aria-expanded="false" aria-controls="spetsesMenu">Σπέτσες</button>
+        <div class="destination-menu" id="spetsesMenu" inert aria-hidden="true">
+          <a class="destination-overview" href="#spetses">Όλα τα καταλύματα στις Σπέτσες <span aria-hidden="true">↗</span></a>
+          <a class="destination-property" href="#ivory"><img src="assets/ivory/thumbs/ivory-01-studio.webp" alt="" width="64" height="52" /><span>Ivory<small>Φωτεινό στούντιο ορόφου</small></span></a>
+        </div>
+      </div>
       <a href="#book">Κράτηση</a>
       <a href="#contact">Επικοινωνία</a>
     </nav>
@@ -106,7 +119,7 @@
         </article>
 
         <article class="property-card reveal-up delay-1">
-          <img src="assets/pearl_1.svg" alt="Εικονογραφημένη φωτογραφία του μεγάλου διαμερίσματος Pearl" />
+          <img src="assets/pearl/pearl-01-living-marina.webp" alt="Το καθιστικό και η τραπεζαρία του Pearl με θέα στη μαρίνα" loading="lazy" width="1800" height="1350" />
           <div class="property-body">
             <span class="tag">Ευρύχωρο διαμέρισμα</span>
             <h2>Pearl</h2>
@@ -215,20 +228,37 @@
 
     <section class="page detail-page" data-route="pearl" data-property-page="Pearl" aria-labelledby="pearlTitle">
       <div class="detail-layout">
-        <div class="detail-gallery reveal-up">
-          <img class="main-photo" src="assets/pearl_1.svg" alt="Pearl κύρια φωτογραφία" />
-          <div class="thumb-row">
-            <button data-photo="assets/pearl_1.svg"><img src="assets/pearl_1.svg" alt="Pearl φωτογραφία 1" /></button>
-            <button data-photo="assets/pearl_living.svg"><img src="assets/pearl_living.svg" alt="Pearl φωτογραφία 2" /></button>
-            <button data-photo="assets/city_view.svg"><img src="assets/city_view.svg" alt="Pearl φωτογραφία 3" /></button>
+        <div class="detail-gallery property-photo-gallery pearl-gallery reveal-up" data-slideshow data-manual-gallery>
+          <div class="slideshow-stage">
+            <img class="main-photo" src="assets/pearl/pearl-01-living-marina.webp" alt="Το καθιστικό και η τραπεζαρία του Pearl με θέα στη μαρίνα" width="1800" height="1350" tabindex="0" role="button" aria-label="Άνοιγμα φωτογραφιών Pearl σε πλήρη οθόνη" />
+            <button class="slide-control slide-prev" type="button" data-slide-prev aria-label="Προηγούμενη φωτογραφία Pearl">‹</button>
+            <button class="slide-control slide-next" type="button" data-slide-next aria-label="Επόμενη φωτογραφία Pearl">›</button>
+            <div class="slide-counter" aria-live="polite"><span data-slide-current>1</span> / <span data-slide-total>14</span></div>
+          </div>
+          <p class="gallery-hint">Πάτησε τη φωτογραφία για μεγέθυνση</p>
+          <div class="thumb-row slideshow-thumbs">
+            <button class="active" type="button" data-photo="assets/pearl/pearl-01-living-marina.webp" aria-label="Φωτογραφία 1: Το καθιστικό και η τραπεζαρία του Pearl με θέα στη μαρίνα"><img src="assets/pearl/thumbs/pearl-01-living-marina.webp" alt="Το καθιστικό και η τραπεζαρία του Pearl με θέα στη μαρίνα" loading="lazy" width="320" height="240" /></button>
+            <button type="button" data-photo="assets/pearl/pearl-02-dining-living.webp" aria-label="Φωτογραφία 2: Η τραπεζαρία και το ευρύχωρο καθιστικό"><img src="assets/pearl/thumbs/pearl-02-dining-living.webp" alt="Η τραπεζαρία και το ευρύχωρο καθιστικό" loading="lazy" width="320" height="240" /></button>
+            <button type="button" data-photo="assets/pearl/pearl-03-living-layout.webp" aria-label="Φωτογραφία 3: Ο ενιαίος χώρος με καθιστικό και τραπεζαρία"><img src="assets/pearl/thumbs/pearl-03-living-layout.webp" alt="Ο ενιαίος χώρος με καθιστικό και τραπεζαρία" loading="lazy" width="320" height="240" /></button>
+            <button type="button" data-photo="assets/pearl/pearl-04-living-room.webp" aria-label="Φωτογραφία 4: Το καθιστικό με τους καναπέδες και τη μπαλκονόπορτα"><img src="assets/pearl/thumbs/pearl-04-living-room.webp" alt="Το καθιστικό με τους καναπέδες και τη μπαλκονόπορτα" loading="lazy" width="320" height="240" /></button>
+            <button type="button" data-photo="assets/pearl/pearl-05-sofa-corner.webp" aria-label="Φωτογραφία 5: Η γωνιά του καναπέ δίπλα στο παράθυρο"><img src="assets/pearl/thumbs/pearl-05-sofa-corner.webp" alt="Η γωνιά του καναπέ δίπλα στο παράθυρο" loading="lazy" width="320" height="240" /></button>
+            <button type="button" data-photo="assets/pearl/pearl-06-marina-window.webp" aria-label="Φωτογραφία 6: Η θέα στη μαρίνα από το καθιστικό"><img src="assets/pearl/thumbs/pearl-06-marina-window.webp" alt="Η θέα στη μαρίνα από το καθιστικό" loading="lazy" width="320" height="240" /></button>
+            <button type="button" data-photo="assets/pearl/pearl-07-dining-view.webp" aria-label="Φωτογραφία 7: Το τραπέζι δίπλα στην ανοιχτή μπαλκονόπορτα"><img src="assets/pearl/thumbs/pearl-07-dining-view.webp" alt="Το τραπέζι δίπλα στην ανοιχτή μπαλκονόπορτα" loading="lazy" width="320" height="240" /></button>
+            <button type="button" data-photo="assets/pearl/pearl-08-hallway.webp" aria-label="Φωτογραφία 8: Ο διάδρομος και η είσοδος του καθιστικού"><img src="assets/pearl/thumbs/pearl-08-hallway.webp" alt="Ο διάδρομος και η είσοδος του καθιστικού" loading="lazy" width="320" height="240" /></button>
+            <button type="button" data-photo="assets/pearl/pearl-09-kitchen.webp" aria-label="Φωτογραφία 9: Η κουζίνα του Pearl με πάγκους και ηλεκτρικές συσκευές"><img src="assets/pearl/thumbs/pearl-09-kitchen.webp" alt="Η κουζίνα του Pearl με πάγκους και ηλεκτρικές συσκευές" loading="lazy" width="320" height="240" /></button>
+            <button type="button" data-photo="assets/pearl/pearl-10-kitchen-detail.webp" aria-label="Φωτογραφία 10: Η κουζίνα με εστίες, φούρνο και ψυγείο"><img src="assets/pearl/thumbs/pearl-10-kitchen-detail.webp" alt="Η κουζίνα με εστίες, φούρνο και ψυγείο" loading="lazy" width="320" height="240" /></button>
+            <button type="button" data-photo="assets/pearl/pearl-11-bathroom.webp" aria-label="Φωτογραφία 11: Το μπάνιο με νιπτήρα και ντους"><img src="assets/pearl/thumbs/pearl-11-bathroom.webp" alt="Το μπάνιο με νιπτήρα και ντους" loading="lazy" width="320" height="240" /></button>
+            <button type="button" data-photo="assets/pearl/pearl-12-bathroom-mirror.webp" aria-label="Φωτογραφία 12: Το μπάνιο με φωτιζόμενο καθρέφτη και ντους"><img src="assets/pearl/thumbs/pearl-12-bathroom-mirror.webp" alt="Το μπάνιο με φωτιζόμενο καθρέφτη και ντους" loading="lazy" width="320" height="240" /></button>
+            <button type="button" data-photo="assets/pearl/pearl-13-marina-night.webp" aria-label="Φωτογραφία 13: Η φωτισμένη μαρίνα τη νύχτα"><img src="assets/pearl/thumbs/pearl-13-marina-night.webp" alt="Η φωτισμένη μαρίνα τη νύχτα" loading="lazy" width="320" height="240" /></button>
+            <button type="button" data-photo="assets/pearl/pearl-14-marina-panorama.webp" aria-label="Φωτογραφία 14: Πανοραμική βραδινή θέα στη μαρίνα"><img src="assets/pearl/thumbs/pearl-14-marina-panorama.webp" alt="Πανοραμική βραδινή θέα στη μαρίνα" loading="lazy" width="320" height="240" /></button>
           </div>
         </div>
         <div class="detail-copy reveal-up delay-1">
           <p class="eyebrow">Πειραιάς</p>
           <h1 id="pearlTitle">Pearl</h1>
-          <p class="lead">Το μεγάλο διαμέρισμα με πιο άνετη κίνηση, πιο premium αίσθηση και χώρο για μεγαλύτερη παρέα.</p>
+          <p class="lead">Φωτεινό διαμέρισμα με ευρύχωρο καθιστικό, άνετη τραπεζαρία και θέα στη μαρίνα.</p>
           <div class="feature-strip">
-            <span>4 guests</span><span>Large</span><span>Προσεγμένη αισθητική</span>
+            <span>4 επισκέπτες</span><span>Ευρύχωρο</span><span>Προσεγμένη αισθητική</span>
           </div>
           <p>Ιδανικό όταν η διαμονή θέλει άνεση, μεγαλύτερο καθιστικό και πιο χαλαρή καθημερινότητα.</p>
           <a class="btn primary big" href="#book" data-book-property="Pearl">Κράτηση Pearl</a>
@@ -238,7 +268,7 @@
 
     <section class="page detail-page" data-route="ivory" data-property-page="Ivory" aria-labelledby="ivoryTitle">
       <div class="detail-layout">
-        <div class="detail-gallery ivory-gallery reveal-up" data-slideshow data-manual-gallery>
+        <div class="detail-gallery property-photo-gallery ivory-gallery reveal-up" data-slideshow data-manual-gallery>
           <div class="slideshow-stage">
             <img class="main-photo" src="assets/ivory/ivory-01-studio.webp" alt="Το Ivory με ξύλινη οροφή, κρεβάτι και καθιστικό" width="1200" height="1600" tabindex="0" role="button" aria-label="Άνοιγμα φωτογραφιών Ivory σε πλήρη οθόνη" />
             <button class="slide-control slide-prev" type="button" data-slide-prev aria-label="Προηγούμενη φωτογραφία Ivory">‹</button>
@@ -344,6 +374,6 @@
   </div>
 
   <script src="ui-controls.js?v=20261019-9a"></script>
-  <script src="app.js?v=20261019-11c"></script>
+  <script src="app.js?v=20261020-16"></script>
 </body>
 </html>

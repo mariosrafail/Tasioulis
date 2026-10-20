@@ -3,6 +3,8 @@ const navLinks = [...document.querySelectorAll('.nav a')];
 const header = document.getElementById('siteHeader');
 const menuToggle = document.getElementById('menuToggle');
 const mainNav = document.getElementById('mainNav');
+const destinationGroups = [...document.querySelectorAll('.nav-destination')];
+const desktopNavigation = () => window.matchMedia('(min-width: 901px) and (hover: hover)').matches;
 const propertySelect = document.getElementById('propertySelect');
 const loader = document.getElementById('loader');
 const mapHome = document.querySelector('.map-home');
@@ -34,7 +36,7 @@ function positionMapDestinations() {
   const imageWidth = 1440 * scale;
   const imageHeight = 1080 * scale;
   const left = (bounds.width - imageWidth) / 2;
-  const top = (bounds.height - imageHeight) * (window.matchMedia('(max-width: 900px)').matches ? .7 : .5);
+  const top = (bounds.height - imageHeight) * (window.matchMedia('(max-width: 900px)').matches ? .55 : .5);
   const mapDrawing = mapHome.querySelector('svg.map-home-image');
   if (mapDrawing) {
     mapDrawing.setAttribute('viewBox', `${-left / scale} ${-top / scale} ${bounds.width / scale} ${bounds.height / scale}`);
@@ -62,13 +64,15 @@ function cleanHomeHash() {
 
 function setActiveNav(route) {
   navLinks.forEach(link => {
-    const linkRoute = link.getAttribute('href').replace('#', '');
-    const isActive = route === linkRoute ||
-      (['skouzen', 'pearl'].includes(route) && linkRoute === 'piraeus') ||
-      (route === 'ivory' && linkRoute === 'spetses');
+    const linkRoute = link.hasAttribute('data-home-link') ? 'home' : link.getAttribute('href').replace('#', '');
+    const isActive = route === linkRoute;
     link.classList.toggle('active', isActive);
     if (isActive) link.setAttribute('aria-current', 'page');
     else link.removeAttribute('aria-current');
+  });
+  destinationGroups.forEach(group => {
+    const destination = ['piraeus', 'skouzen', 'pearl'].includes(route) ? 'piraeus' : ['spetses', 'ivory'].includes(route) ? 'spetses' : null;
+    group.querySelector('.nav-destination-trigger').classList.toggle('active', group.dataset.destination === destination);
   });
 }
 
@@ -300,11 +304,49 @@ function handleRouteChange() {
 }
 
 function closeMenu() {
+  destinationGroups.forEach(group => setDestinationOpen(group, false));
   if (!menuToggle || !mainNav) return;
   menuToggle.classList.remove('open');
   mainNav.classList.remove('open');
   menuToggle.setAttribute('aria-expanded', 'false');
 }
+
+function setDestinationOpen(group, open) {
+  group.classList.toggle('is-open', open);
+  group.querySelector('.nav-destination-trigger').setAttribute('aria-expanded', String(open));
+  const panel = group.querySelector('.destination-menu');
+  panel.inert = !open;
+  panel.setAttribute('aria-hidden', String(!open));
+}
+
+destinationGroups.forEach(group => {
+  const trigger = group.querySelector('.nav-destination-trigger');
+  const openGroup = () => {
+    destinationGroups.forEach(other => setDestinationOpen(other, other === group));
+  };
+  group.addEventListener('pointerenter', () => { if (desktopNavigation()) openGroup(); });
+  group.addEventListener('pointerleave', () => { if (desktopNavigation()) setDestinationOpen(group, false); });
+  trigger.addEventListener('click', event => {
+    if (desktopNavigation() && event.detail > 0) openGroup();
+    else if (group.classList.contains('is-open')) setDestinationOpen(group, false);
+    else openGroup();
+  });
+  group.addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+      event.preventDefault(); event.stopPropagation();
+      setDestinationOpen(group, false); trigger.focus();
+    } else if (event.key === 'ArrowDown' && event.target === trigger) {
+      event.preventDefault(); openGroup();
+      group.querySelector('.destination-menu a').focus();
+    } else if (event.key === 'Tab') {
+      window.setTimeout(() => { if (!group.contains(document.activeElement)) setDestinationOpen(group, false); }, 0);
+    }
+  });
+});
+mainNav.addEventListener('click', event => { if (event.target.closest('a')) closeMenu(); });
+mainNav.addEventListener('keydown', event => {
+  if (event.key === 'Escape') { closeMenu(); menuToggle.focus(); }
+});
 
 window.addEventListener('hashchange', handleRouteChange);
 window.addEventListener('popstate', handleRouteChange);
@@ -322,6 +364,7 @@ menuToggle.addEventListener('click', () => {
   const isOpen = mainNav.classList.toggle('open');
   menuToggle.classList.toggle('open', isOpen);
   menuToggle.setAttribute('aria-expanded', String(isOpen));
+  if (!isOpen) destinationGroups.forEach(group => setDestinationOpen(group, false));
 });
 
 document.addEventListener('click', event => {
@@ -419,7 +462,7 @@ document.addEventListener('click', event => {
 });
 
 window.addEventListener('keydown', event => {
-  if (event.target.matches?.('.ivory-gallery .main-photo') && (event.key === 'Enter' || event.key === ' ')) {
+  if (event.target.matches?.('.property-photo-gallery .main-photo') && (event.key === 'Enter' || event.key === ' ')) {
     event.preventDefault();
     openLightbox(event.target.closest('[data-slideshow]'));
     return;

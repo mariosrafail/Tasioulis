@@ -371,6 +371,7 @@ h1 {
 }
 .property-card img {
   width: 100%;
+  height: auto;
   aspect-ratio: 16 / 10;
   object-fit: cover;
 }
@@ -2763,7 +2764,7 @@ textarea:focus {
 
 @media (max-width: 900px) {
   .map-home-copy {
-    top: 20px;
+    top: 14px;
     left: 22px;
     right: 22px;
     width: min(380px, calc(100vw - 44px));
@@ -3443,7 +3444,7 @@ textarea:focus {
 }
 @media (max-width: 900px) {
   .illustrated-map .map-home-image {
-    object-position: center 70%;
+    object-position: center 55%;
   }
   .illustrated-map .map-hotspot {
     min-width: 108px;
@@ -3452,14 +3453,14 @@ textarea:focus {
 }
 
 /* Ivory real photography: preserve portrait interiors and landscape exteriors. */
-.ivory-gallery {
+.property-photo-gallery {
   min-width: 0;
   padding: 12px;
 }
-.ivory-gallery .slideshow-stage {
+.property-photo-gallery .slideshow-stage {
   background: #e9e4d9;
 }
-.ivory-gallery .main-photo {
+.property-photo-gallery .main-photo {
   display: block;
   height: min(68svh, 640px);
   width: 100%;
@@ -3467,34 +3468,34 @@ textarea:focus {
   object-fit: contain;
   border-radius: 0;
 }
-.ivory-gallery .slideshow-stage:hover .main-photo {
+.property-photo-gallery .slideshow-stage:hover .main-photo {
   transform: none;
   filter: none;
 }
-.ivory-gallery .slideshow-stage::after {
+.property-photo-gallery .slideshow-stage::after {
   content: none;
 }
-.ivory-gallery .gallery-hint {
+.property-photo-gallery .gallery-hint {
   margin: 12px 0;
   color: var(--muted);
   text-align: center;
   font-size: 12px;
   line-height: 1.5;
 }
-.ivory-gallery .slideshow-thumbs {
+.property-photo-gallery .slideshow-thumbs {
   padding: 3px 2px 8px;
 }
-.ivory-gallery .slideshow-thumbs button {
+.property-photo-gallery .slideshow-thumbs button {
   flex-basis: 84px;
   border-radius: 0;
 }
-.ivory-gallery .slideshow-thumbs img {
+.property-photo-gallery .slideshow-thumbs img {
   display: block;
   height: 72px;
   width: 84px;
   aspect-ratio: auto;
 }
-.ivory-gallery .main-photo:focus-visible {
+.property-photo-gallery .main-photo:focus-visible {
   outline: 3px solid var(--sea-dark);
   outline-offset: -3px;
 }
@@ -3519,7 +3520,7 @@ textarea:focus {
     max-height: 520px;
     object-fit: cover;
   }
-  .ivory-gallery .main-photo {
+  .property-photo-gallery .main-photo {
     height: min(62svh, 480px);
   }
 }
@@ -3899,7 +3900,7 @@ textarea:focus {
 .counter-button,
 .contact-links a,
 .site-header .nav a,
-.ivory-gallery .thumb-row button,
+.property-photo-gallery .thumb-row button,
 .skouzen-page .skouzen-gallery .thumb-row button {
   border-radius: var(--control-radius);
 }
@@ -3907,30 +3908,47 @@ textarea:focus {
 .lightbox-nav {
   width: 44px;
   height: 44px;
-  border: 1px solid rgba(255,253,247,.8);
-  background: rgba(255,253,247,.9);
-  color: #29565b;
-  box-shadow: 0 3px 12px rgba(23,47,53,.09);
-  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,253,247,.35);
+  background: rgba(23,47,53,.32);
+  color: #fffdf7;
+  box-shadow: 0 2px 10px rgba(23,47,53,.08);
+  backdrop-filter: blur(12px);
   transform: translateY(-50%);
   transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
 .slide-control::before,
 .lightbox-nav::before {
-  width: 9px;
-  height: 9px;
-  border-top-width: 1.5px;
-  border-right-width: 1.5px;
+  width: 7px;
+  height: 7px;
+  border-top-width: 1px;
+  border-right-width: 1px;
+}
+.slide-prev::before,
+.lightbox-prev::before { transform: translate(-100%, -50%) rotate(225deg); }
+.slide-next::before,
+.lightbox-next::before { transform: translate(0, -50%) rotate(45deg); }
+.slide-control::after,
+.lightbox-nav::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 17px;
+  height: 1px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
 }
 .slide-control:hover,
 .lightbox-nav:hover {
-  background: #fffdf7;
-  border-color: #b5c7c4;
+  background: rgba(23,63,67,.78);
+  border-color: rgba(255,253,247,.6);
   box-shadow: 0 4px 16px rgba(23,47,53,.14);
   transform: translateY(-50%);
 }
 .slide-control:active,
-.lightbox-nav:active { background: #e9f0e9; }
+.lightbox-nav:active { background: #173f43; }
+.slide-control:focus-visible,
+.lightbox-nav:focus-visible { outline: 2px solid #fffdf7; outline-offset: 3px; }
 .lightbox-close {
   width: 44px;
   height: 44px;
@@ -3977,8 +3995,9 @@ textarea:focus {
   to { opacity: 0; transform: translateY(-18px) scale(.975); filter: blur(3px); }
 }
 @keyframes sceneReveal {
-  from { clip-path: inset(100% 0 0 0); transform: translateY(40px) scale(1.035); }
-  to { clip-path: inset(0); transform: none; }
+  from { opacity: 0; clip-path: inset(18% 0 0 0); transform: translateY(32px) scale(1.025); }
+  45% { opacity: 1; }
+  to { opacity: 1; clip-path: inset(0); transform: none; }
 }
 @keyframes destinationReveal {
   from { opacity: .25; clip-path: circle(8% at 50% 50%); transform: scale(1.07); }
@@ -4077,4 +4096,188 @@ textarea:focus {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .photo-previous { display: none; }
+}
+
+
+/* Pearl landscape photography shares the gallery controls with Ivory. */
+.pearl-gallery .main-photo {
+  height: auto;
+  max-height: 68svh;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+}
+
+/* Short destination introductions keep the accommodation cards in view. */
+.destination-page .compact-hero {
+  min-height: clamp(240px, 32svh, 330px);
+  padding: clamp(24px, 3vw, 40px);
+  align-items: center;
+}
+.destination-page .hero-copy h1 {
+  max-width: 740px;
+  font-size: clamp(30px, 4vw, 52px);
+  line-height: 1.06;
+}
+.destination-page .hero-copy .eyebrow { margin: 0 0 12px; }
+.destination-page .hero-copy p:not(.eyebrow) {
+  margin: 14px 0 0;
+  font-size: clamp(14px, 1.4vw, 17px);
+  line-height: 1.5;
+}
+.destination-page .property-grid { margin-top: 26px; }
+@media (max-width: 700px) {
+  .destination-page .compact-hero { min-height: 220px; padding: 22px; }
+  .destination-page .hero-copy h1 { font-size: 30px; }
+  .destination-page .hero-copy .eyebrow { margin-bottom: 10px; }
+  .destination-page .hero-copy p:not(.eyebrow) { margin-top: 10px; }
+  .destination-page .property-grid { margin-top: 22px; }
+}
+
+/* Destination navigation: desktop hover disclosures and mobile tap accordions. */
+.nav-destination { position: relative; }
+.nav-destination-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  border: 0;
+  border-radius: var(--control-radius);
+  background: transparent;
+  color: rgba(23,33,38,.72);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.nav-destination-trigger::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 200ms ease;
+}
+.nav-destination-trigger.active { color: #173f43; }
+.nav-destination-trigger.active::before {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  left: 0;
+  width: calc(100% - 13px);
+  height: 1px;
+  background: currentColor;
+}
+.nav-destination.is-open .nav-destination-trigger::after { transform: translateY(1px) rotate(225deg); }
+.destination-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: -20px;
+  z-index: 50;
+  width: 310px;
+  padding: 8px;
+  border: 1px solid #d8dcd4;
+  border-radius: 8px;
+  background: #fffdf7;
+  box-shadow: 0 16px 44px rgba(23,63,67,.15);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-6px) scale(.98);
+  transform-origin: top right;
+  transition: opacity 180ms ease, visibility 180ms ease, transform 260ms cubic-bezier(.16,1,.3,1);
+}
+.destination-menu::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -14px;
+  height: 14px;
+}
+.nav-destination.is-open .destination-menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+}
+.site-header .destination-menu a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 0;
+  border-radius: var(--control-radius);
+  background: transparent;
+  color: #173f43;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  animation: none;
+  transform: none;
+}
+.site-header .destination-menu a::after { content: none; }
+.site-header .destination-menu a:hover,
+.site-header .destination-menu a:focus-visible,
+.site-header .destination-menu a.active { background: #e9f0e9; }
+.site-header .destination-menu .destination-overview {
+  justify-content: space-between;
+  padding: 12px 10px;
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #617a7f;
+  border-bottom: 1px solid #e4e7df;
+}
+.destination-property img {
+  width: 64px;
+  height: 52px;
+  flex: 0 0 64px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.destination-property small {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  color: #74817e;
+  font-weight: 400;
+}
+@media (max-width: 900px) {
+  .site-header .nav {
+    max-height: calc(100svh - var(--header-h) - 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .nav-destination-trigger { width: 100%; justify-content: space-between; padding: 15px 16px; }
+  .nav-destination-trigger.active { background: #e9f0e9; }
+  .nav-destination-trigger.active::before { content: none; }
+  .destination-menu {
+    position: static;
+    display: none;
+    width: auto;
+    margin: 2px 8px 8px;
+    padding: 5px;
+    border: 0;
+    border-left: 1px solid #c7d5cc;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+  }
+  .destination-menu::before { content: none; }
+  .nav-destination.is-open .destination-menu { display: block; animation: navigationReveal 260ms ease both; }
+  .site-header .destination-menu a { animation: none; }
+  .site-header .destination-menu .destination-overview { font-size: 10px; }
+}
+/* Keep an explicit reveal on every internal page navigation. */
+.page.active.scene-reveal { animation-duration: 820ms; }
+@media (prefers-reduced-motion: reduce) {
+  .destination-menu,
+  .nav-destination-trigger::after { transition: none; }
+  .nav-destination.is-open .destination-menu { animation: none; }
 }
