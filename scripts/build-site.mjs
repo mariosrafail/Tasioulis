@@ -8,7 +8,7 @@ await rm(output,{recursive:true,force:true});
 await mkdir(output,{recursive:true});
 for(const file of ['index.html','styles.css','app.js','ui-controls.js','booking.js']) await cp(path.join(root,file),path.join(output,file));
 await mkdir(path.join(output,'admin'),{recursive:true});
-for(const file of ['index.html','app.js','password.js','styles.css','reset-password.html','reset-password.js']) await cp(path.join(root,'admin',file),path.join(output,'admin',file));
+for(const file of ['index.html','app.js','styles.css']) await cp(path.join(root,'admin',file),path.join(output,'admin',file));
 await mkdir(path.join(output,'public'),{recursive:true});
 await cp(path.join(root,'public/admin-auth.js'),path.join(output,'public/admin-auth.js'));
 await cp(path.join(root,'assets'),path.join(output,'assets'),{recursive:true,filter:source=>!source.split(path.sep).includes('originals')});

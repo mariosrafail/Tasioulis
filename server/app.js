@@ -35,26 +35,19 @@ export function createApp(pool, {serveStatic=true, netlify=false, staticRoot=pro
     const response = await fetch(`${authUrl()}/get-session`, { headers: { Cookie: authCookieToUpstream(req.get('cookie')) }, signal: AbortSignal.timeout(10000) });
     if (!response.ok) throw new InputError('Η σύνδεσή σου έληξε. Συνδέσου ξανά.', 401);
     const session = await response.json();
-    if (!session?.user || !session.session || !session.user.emailVerified || session.user.banned || !adminEmails().includes(session.user.email.toLowerCase())) throw new InputError('Δεν έχεις πρόσβαση διαχειριστή.', 403);
+    if (!session?.user || !session.session || session.user.banned || !adminEmails().includes(session.user.email.toLowerCase())) throw new InputError('Δεν έχεις πρόσβαση διαχειριστή.', 403);
     return session.user.email.toLowerCase();
   };
   app.get('/api/config', (_req, res) => res.json({ authReady: Boolean(authUrl() && adminEmails().length), bookingReady: Boolean(process.env.DATABASE_URL && authUrl() && adminEmails().length), properties }));
   // Same-origin proxy keeps managed session cookies usable on mobile Safari too.
   // Only the login/session methods used by this admin are exposed here.
-  const passwordChangePaths = new Set(['forget-password/email-otp','email-otp/reset-password']);
-  const authPaths = new Set(['get-session','sign-in/email-otp','sign-in/email','email-otp/send-verification-otp','request-password-reset','reset-password','sign-out', ...passwordChangePaths]);
+  const authPaths = new Map([['get-session', 'GET'], ['sign-in/email', 'POST'], ['sign-out', 'POST']]);
   app.use('/api/auth', rateLimit({ ...limitOptions, windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false }), async (req, res) => {
     const route = req.path.replace(/^\//, '');
     if (!authUrl() || !adminEmails().length) throw new InputError('Η πρόσβαση διαχειριστή δεν έχει ρυθμιστεί ακόμη.', 503);
-    if (!authPaths.has(route) || !['GET','POST'].includes(req.method)) throw new InputError('Η ενέργεια δεν υποστηρίζεται.', 404);
+    if (authPaths.get(route) !== req.method) throw new InputError('Η ενέργεια δεν υποστηρίζεται.', 404);
     if (req.body?.email && !adminEmails().includes(String(req.body.email).trim().toLowerCase())) throw new InputError('Αυτό το email δεν έχει πρόσβαση διαχειριστή.', 403);
-    if (passwordChangePaths.has(route)) {
-      const ownEmail = await getAdminEmail(req);
-      if (req.body?.email !== ownEmail) throw new InputError('Μπορείς να αλλάξεις μόνο τον προσωπικό σου κωδικό.', 403);
-      if (route === 'email-otp/reset-password' && (typeof req.body.password !== 'string' || req.body.password.length < 12 || req.body.password.length > 128 || !/^\d{6}$/.test(req.body.otp))) throw new InputError('Συμπλήρωσε τον εξαψήφιο κωδικό email και νέο κωδικό 12–128 χαρακτήρων.');
-    }
     const origin = process.env.APP_ORIGIN || `${req.protocol}://${req.get('host')}`;
-    if (route === 'request-password-reset') req.body.redirectTo = `${origin}/admin/reset-password`;
     const upstream = await fetch(`${authUrl()}/${route}${req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : ''}`, {
       method: req.method,
       headers: { 'Content-Type': 'application/json', Origin: origin, Cookie: authCookieToUpstream(req.get('cookie')) },
@@ -107,7 +100,7 @@ export function createApp(pool, {serveStatic=true, netlify=false, staticRoot=pro
   if (serveStatic) {
   const root = path.resolve(staticRoot);
   app.get(['/admin', '/admin/'], (_req, res) => res.set('Cache-Control','no-store').sendFile(path.join(root, 'admin/index.html')));
-  app.get('/admin/reset-password', (_req, res) => res.set({ 'Cache-Control':'no-store', 'Referrer-Policy':'no-referrer' }).sendFile(path.join(root, 'admin/reset-password.html')));
+  app.get(['/admin/reset-password', '/admin/reset-password.html'], (_req, res) => res.redirect(302, '/admin'));
   app.use('/admin', express.static(path.join(root, 'admin'), { index: false, dotfiles: 'deny' }));
   app.use('/public', express.static(path.join(root, 'public'), { dotfiles: 'deny' }));
   app.use('/assets', express.static(path.join(root, 'assets'), { dotfiles: 'deny', maxAge: '1d' }));

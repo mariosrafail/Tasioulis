@@ -28,22 +28,14 @@ the server source or database migrations.
 - Isolated development branch: `br-young-frog-b9hbdd0c`.
 - Configuration and credentials are in gitignored `.env.local` files.
 - `DATABASE_URL` is pooled. Migrations require the separate unpooled URL.
-- Managed Neon Auth is enabled on production. Only verified emails explicitly
-  listed in server-side `ADMIN_EMAILS` may use the admin API.
-- The owner's two authorized emails are configured privately in `.env.local`.
-  Login at `/admin` with email/password or a six-digit email code. Unverified
-  accounts complete email-code verification before the API grants access.
-- `/admin/reset-password` requests a short-lived, one-use Neon password setup/reset
-  link sent to the authorized mailbox. Passwords are entered by the owner in that
-  page, never in chat, source files or environment variables. The reset token is
-  removed from the address bar after successful use; the page sends no referrer.
-  Reloading before submission keeps the form usable. Request redirects are
-  fixed by the server to the configured `APP_ORIGIN`; clients cannot override them.
-- Every signed-in administrator has **Ο λογαριασμός μου → Αλλαγή κωδικού**.
-  The app sends a one-use password-reset OTP to that session's email, then submits
-  the OTP and new password to Managed Auth. The server rejects attempts to target
-  a different account, even if that email is another administrator. A successful
-  change signs out that browser so the user logs back in with the new password.
+- Managed Neon Auth is enabled on production. Only authenticated accounts explicitly
+  listed in server-side `ADMIN_EMAILS` may use the admin API. The owner provisioned
+  passwords for all three authorized accounts; email verification is not required.
+- Login at `/admin` uses email and password only. Email OTP, verification and reset
+  endpoints are blocked by the app. Password reset pages redirect to `/admin`.
+  The site never requests authentication emails. Passwords stay out of source and env files.
+- `node scripts/verify-admin-passwords.mjs` checks all configured admin passwords
+  using hidden terminal input and verifies protected access without sending email.
 - Online submissions remain closed until at least one admin email is configured;
   guests can still see availability and the correct property phone number.
 

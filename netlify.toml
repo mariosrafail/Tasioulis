@@ -19,8 +19,14 @@
 
 [[redirects]]
   from = "/admin/reset-password"
-  to = "/admin/reset-password.html"
-  status = 200
+  to = "/admin"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/admin/reset-password.html"
+  to = "/admin"
+  status = 302
   force = true
 
 [[redirects]]

@@ -1,7 +1,6 @@
 import { auth } from '/public/admin-auth.js';
-import { setPasswordAccount } from './password.js';
 const $ = id => document.getElementById(id);
-let otpSent = false, loginMode = 'password', reservations = [], filter = 'all';
+let reservations = [], filter = 'all';
 const propertyNames = { Pearl: 'Piraeus Pearl - Sea View Elegance' };
 const kindLabels = { request: 'Αίτημα από το site', phone: 'Τηλεφωνική κράτηση', block: 'Μη διαθέσιμο' };
 const statusLabels = { pending: 'Σε αναμονή επιβεβαίωσης', confirmed: 'Δεσμευμένο', cancelled: 'Ακυρώθηκε · Ημερομηνίες ελεύθερες' };
@@ -56,55 +55,20 @@ async function change(id, action, button) {
 }
 async function showDashboard() {
   const session = await api('/session');
-  setPasswordAccount(session.email);
   $('signedInAs').textContent = session.email; $('loginPanel').hidden = true; $('dashboard').hidden = false;
   await load();
-}
-function setLoginMode(mode) {
-  loginMode = mode; otpSent = false;
-  $('otpField').hidden = true; $('changeEmail').hidden = true;
-  $('passwordField').hidden = mode !== 'password';
-  $('loginForm').elements.password.required = mode === 'password';
-  $('loginForm').elements.password.value = '';
-  $('loginForm').elements.otp.required = false; $('loginForm').elements.otp.value = '';
-  $('loginForm').elements.email.readOnly = false;
-  $('loginButton').textContent = mode === 'password' ? 'Σύνδεση' : 'Αποστολή κωδικού';
-  $('loginMode').textContent = mode === 'password' ? 'Σύνδεση με κωδικό email' : 'Σύνδεση με κωδικό πρόσβασης';
-  $('loginStatus').textContent = '';
-}
-async function sendCode(email) {
-  const { error } = await auth.emailOtp.sendVerificationOtp({ email, type: 'sign-in' });
-  if (error) throw new Error(error.message || 'Δεν ήταν δυνατή η αποστολή κωδικού.');
-  setLoginMode('otp'); otpSent = true;
-  $('otpField').hidden = false; $('changeEmail').hidden = false;
-  $('loginForm').elements.otp.required = true; $('loginForm').elements.email.readOnly = true;
-  $('loginButton').textContent = 'Σύνδεση';
-  $('loginStatus').textContent = 'Ο κωδικός στάλθηκε. Επιβεβαίωσε το email σου για να συνεχίσεις. Έλεγξε και τα ανεπιθύμητα.';
-  $('loginForm').elements.otp.focus();
 }
 $('loginForm').addEventListener('submit', async event => {
   event.preventDefault(); const button = $('loginButton'); button.disabled = true; $('loginStatus').textContent = '';
   try {
     const email = event.target.elements.email.value.trim().toLowerCase();
-    if (loginMode === 'password') {
-      const { data, error } = await auth.signIn.email({ email, password:event.target.elements.password.value });
-      event.target.elements.password.value = '';
-      if (error) throw new Error(error.message || 'Έλεγξε τα στοιχεία σύνδεσης.');
-      if (!data?.user?.emailVerified) await sendCode(email);
-      else await showDashboard();
-    } else if (!otpSent) await sendCode(email);
-    else {
-      const { error } = await auth.signIn.emailOtp({ email, otp: event.target.elements.otp.value.trim() });
-      if (error) throw new Error(error.message || 'Ο κωδικός δεν είναι έγκυρος.');
-      await showDashboard();
-    }
+    const { error } = await auth.signIn.email({ email, password: event.target.elements.password.value });
+    event.target.elements.password.value = '';
+    if (error) throw new Error('Δεν ήταν δυνατή η σύνδεση. Έλεγξε το email και τον κωδικό πρόσβασης.');
+    await showDashboard();
   } catch (error) { $('loginStatus').textContent = error.message; }
   finally { button.disabled = false; }
 });
-$('changeEmail').addEventListener('click', () => {
-  setLoginMode('otp');
-});
-$('loginMode').addEventListener('click', () => setLoginMode(loginMode === 'password' ? 'otp' : 'password'));
 $('logout').addEventListener('click', async () => {
   try { const { error } = await auth.signOut(); if (error) throw new Error('Η αποσύνδεση απέτυχε. Δοκίμασε ξανά.'); location.reload(); }
   catch (error) { $('adminStatus').textContent = error.message; }
@@ -137,7 +101,3 @@ try {
   if (!config.authReady) { $('loginButton').disabled = true; $('loginStatus').textContent = 'Αναμένεται ο ορισμός των email διαχειριστών.'; }
   else await showDashboard().catch(() => {});
 } catch { $('loginStatus').textContent = 'Δεν ήταν δυνατή η σύνδεση στην υπηρεσία. Δοκίμασε ξανά.'; }
-if (new URLSearchParams(location.search).get('password') === 'changed') {
-  $('loginStatus').textContent = 'Ο κωδικός σου άλλαξε επιτυχώς. Συνδέσου με τον νέο προσωπικό κωδικό σου.';
-  history.replaceState(null,'',location.pathname);
-}

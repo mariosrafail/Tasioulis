@@ -13,42 +13,17 @@
   <main class="admin-shell">
     <div class="admin-intro"><p class="eyebrow">Elements · Διαχείριση</p><h1>Κάθε διαμονή, οργανωμένη.</h1><p>Τηλεφωνικές κρατήσεις, μη διαθέσιμες ημερομηνίες και αιτήματα από το site.</p></div>
     <section class="admin-panel login-panel" id="loginPanel" aria-labelledby="loginTitle">
-      <p class="eyebrow">Πρόσβαση διαχειριστή</p><h2 id="loginTitle">Σύνδεση με email</h2>
-      <p>Χρησιμοποίησε το εξουσιοδοτημένο email και τον κωδικό σου ή ζήτησε έναν κωδικό σύνδεσης μέσω email.</p>
+      <p class="eyebrow">Πρόσβαση διαχειριστή</p><h2 id="loginTitle">Σύνδεση διαχειριστή</h2>
+      <p>Χρησιμοποίησε το εξουσιοδοτημένο email και τον κωδικό πρόσβασής σου.</p>
       <form id="loginForm">
         <label>Email<input type="email" name="email" autocomplete="email" required /></label>
         <label id="passwordField">Κωδικός πρόσβασης<input type="password" name="password" autocomplete="current-password" required /></label>
-        <label id="otpField" hidden>Κωδικός email<input type="text" name="otp" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" /></label>
         <button class="btn primary" id="loginButton" type="submit">Σύνδεση</button>
-        <button class="btn ghost" id="changeEmail" type="button" hidden>Άλλο email / Νέος κωδικός</button>
-        <button class="btn ghost" id="loginMode" type="button">Σύνδεση με κωδικό email</button>
-        <a class="admin-back" href="/admin/reset-password">Ορισμός / επαναφορά κωδικού ↗</a>
       </form>
       <p class="admin-status" id="loginStatus" role="status"></p>
     </section>
     <section id="dashboard" hidden aria-label="Διαχείριση καταλυμάτων">
       <div class="admin-toolbar"><p id="signedInAs"></p><button class="btn ghost" id="logout" type="button">Αποσύνδεση</button></div>
-      <details class="admin-panel account-settings" id="accountSettings">
-        <summary>Ο λογαριασμός μου · Αλλαγή κωδικού <span aria-hidden="true">⌄</span></summary>
-        <div class="account-settings-body">
-          <h2>Νέος προσωπικός κωδικός</h2>
-          <p>Θα στείλουμε κωδικό επιβεβαίωσης αποκλειστικά στο email του συνδεδεμένου λογαριασμού. Η αλλαγή ολοκληρώνεται μόνο με αυτόν τον κωδικό.</p>
-          <p class="account-email" id="passwordAccountEmail"></p>
-          <button class="btn ghost" type="button" id="sendPasswordCode">Αποστολή κωδικού επιβεβαίωσης</button>
-          <form id="changePasswordForm">
-            <fieldset id="changePasswordFields" disabled hidden>
-              <label>Κωδικός επιβεβαίωσης από το email<input type="text" name="otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required /></label>
-              <div class="form-row">
-                <label>Νέος κωδικός<input type="password" name="password" autocomplete="new-password" minlength="12" maxlength="128" required /></label>
-                <label>Επιβεβαίωση νέου κωδικού<input type="password" name="confirmation" autocomplete="new-password" minlength="12" maxlength="128" required /></label>
-              </div>
-              <p>Τουλάχιστον 12 χαρακτήρες. Επίλεξε έναν μοναδικό κωδικό για τον λογαριασμό σου.</p>
-              <button class="btn primary" type="submit">Επιβεβαίωση & αλλαγή κωδικού</button>
-            </fieldset>
-          </form>
-          <p class="admin-status" id="passwordChangeStatus" role="status"></p>
-        </div>
-      </details>
       <div class="admin-columns">
         <section class="admin-panel" aria-labelledby="newStayTitle">
           <p class="eyebrow">Νέα καταχώριση</p><h2 id="newStayTitle">Δέσμευση ημερομηνιών</h2>
@@ -78,6 +53,6 @@
       <p class="admin-status" id="adminStatus" role="status"></p>
     </section>
   </main>
-  <script type="module" src="/admin/app.js"></script>
+  <script type="module" src="/admin/app.js?v=20261020-20"></script>
 </body>
 </html>
