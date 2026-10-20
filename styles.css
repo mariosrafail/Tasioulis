@@ -4282,6 +4282,17 @@ textarea:focus {
   color: #74817e;
   font-weight: 400;
 }
+.destination-property > span { min-width: 0; white-space: normal; }
+#pearlTitle {
+  font-size: clamp(32px, 3.5vw, 56px);
+  line-height: 1.08;
+  text-wrap: balance;
+}
+[data-route="piraeus"] .property-card:has(a[href="#pearl"]) h2 {
+  font-size: clamp(28px, 2.8vw, 42px);
+  line-height: 1.12;
+  text-wrap: balance;
+}
 @media (max-width: 900px) {
   .site-header .nav {
     max-height: calc(100svh - var(--header-h) - 24px);

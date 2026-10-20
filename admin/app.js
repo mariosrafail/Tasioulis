@@ -2,6 +2,7 @@ import { auth } from '/public/admin-auth.js';
 import { setPasswordAccount } from './password.js';
 const $ = id => document.getElementById(id);
 let otpSent = false, loginMode = 'password', reservations = [], filter = 'all';
+const propertyNames = { Pearl: 'Piraeus Pearl - Sea View Elegance' };
 const kindLabels = { request: 'Αίτημα από το site', phone: 'Τηλεφωνική κράτηση', block: 'Μη διαθέσιμο' };
 const statusLabels = { pending: 'Σε αναμονή επιβεβαίωσης', confirmed: 'Δεσμευμένο', cancelled: 'Ακυρώθηκε · Ημερομηνίες ελεύθερες' };
 const dateFormat = value => new Intl.DateTimeFormat('el-GR', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(`${value}T12:00:00`));
@@ -23,7 +24,7 @@ function render() {
   if (!items.length) $('reservationList').append(el('p', 'Δεν υπάρχουν καταχωρίσεις για αυτό το κατάλυμα.', 'admin-empty'));
   for (const item of items) {
     const card = el('article', '', `reservation-item ${item.status}`);
-    const top = el('div', '', 'reservation-top'); top.append(el('h3', item.property), el('span', statusLabels[item.status], 'reservation-badge'));
+    const top = el('div', '', 'reservation-top'); top.append(el('h3', propertyNames[item.property] || item.property), el('span', statusLabels[item.status], 'reservation-badge'));
     card.append(top, el('p', `${dateFormat(item.checkin)} → ${dateFormat(item.checkout)}`, 'reservation-dates'), el('p', kindLabels[item.kind], 'reservation-kind'));
     if (item.guest_name) card.append(el('p', item.guest_name));
     if (item.guest_email) { const email = el('a', item.guest_email); email.href = `mailto:${item.guest_email}`; card.append(email); }

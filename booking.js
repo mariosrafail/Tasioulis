@@ -50,7 +50,7 @@
     const [display, phone, capacity] = phones[property.value];
     const link = document.getElementById('bookingPhone');
     link.href = `tel:${phone}`; link.replaceChildren();
-    const label = document.createElement('span'); label.textContent = `Τηλέφωνο ${property.value === 'Pearl' ? 'αποκλειστικά ' : ''}για το ${property.value}`;
+    const label = document.createElement('span'); label.textContent = `Τηλέφωνο ${property.value === 'Pearl' ? 'αποκλειστικά ' : ''}για το ${property.selectedOptions[0].textContent}`;
     const number = document.createElement('strong'); number.textContent = display; link.append(label, number);
     form.elements.guests.max = String(capacity);
     if (+form.elements.guests.value > capacity) form.elements.guests.value = String(capacity);
