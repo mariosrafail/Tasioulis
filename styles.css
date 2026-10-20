@@ -4107,6 +4107,41 @@ textarea:focus {
   object-fit: contain;
 }
 
+/* Property-specific contact details stay distinct throughout the booking flow. */
+.property-phone {
+  display: block;
+  width: fit-content;
+  margin-top: 22px;
+  color: #173f43;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: .02em;
+}
+.property-phone span { display:block; margin-bottom:7px; font-size:11px; font-weight:500; letter-spacing:.03em; color:#617a7f; }
+.property-phone:hover { color:#39776d; }
+.contact-page .contact-card { width:min(1080px,100%); text-align:left; }
+.contact-page .contact-card > h1 { max-width:760px; }
+.contact-properties { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:32px; }
+.contact-property-group { min-width:0; padding:28px; border:1px solid #d1dacf; border-radius:6px; background:#fffdf7; }
+.contact-property-group:nth-child(2) { background:#eaf0e9; border-color:#b7c7ba; }
+.contact-card .contact-property-group .eyebrow { font-size:10px; letter-spacing:.12em; line-height:1.7; margin:0 0 18px; color:#617a7f; }
+.contact-property-group h2 { font-family:Georgia,serif; font-size:34px; line-height:1.12; }
+.contact-card .contact-property-group > p:not(.eyebrow) { font-size:13px; line-height:1.6; min-height:42px; }
+.contact-phone { display:block; margin-top:26px; padding-top:22px; border-top:1px solid #cdd6cc; font-size:clamp(25px,3vw,36px); color:#173f43; letter-spacing:.01em; font-variant-numeric:tabular-nums; }
+.contact-phone span { display:block; margin-top:10px; font-size:11px; letter-spacing:.025em; }
+.contact-phone:hover { color:#39776d; }
+.availability-note { font-size:12px; line-height:1.7; color:#617a7f; }
+.booking-form .booking-trap { position:absolute; left:-10000px; width:1px; height:1px; overflow:hidden; }
+.booking-form button[type="submit"]:disabled { opacity:.5; cursor:wait; transform:none; }
+.calendar-day.is-unavailable { text-decoration:line-through; background:#f0e8e1; color:#a29181; opacity:.65; }
+.form-note { line-height:1.75; font-size:13px; font-weight:500; }
+@media(max-width:700px) {
+  .contact-properties { grid-template-columns:1fr; gap:18px; margin-top:24px; }
+  .contact-property-group { padding:24px; }
+  .contact-phone { font-size:30px; }
+  .contact-card .contact-property-group > p:not(.eyebrow) { min-height:0; }
+}
+
 /* Short destination introductions keep the accommodation cards in view. */
 .destination-page .compact-hero {
   min-height: clamp(240px, 32svh, 330px);

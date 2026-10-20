@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0f3d43" />
   <title>Elements</title>
   <meta name="description" content="Elements — διαμονή στον Πειραιά και στις Σπέτσες. Ανακάλυψε τα SkouZen, Pearl και Ivory." />
-  <link rel="stylesheet" href="styles.css?v=20261020-17" />
+  <link rel="stylesheet" href="styles.css?v=20261020-18" />
 </head>
 <body>
   <div id="loader" class="loader" aria-label="Φόρτωση σελίδας">
@@ -203,6 +203,7 @@
           </div>
           <p>Στήσιμο για ζευγάρι ή solo ταξίδι, με καθαρό χώρο, έξυπνη διάταξη και αισθητική που δεν είναι βαριά.</p>
           <a class="btn primary big" href="#book" data-book-property="SkouZen">Κράτηση SkouZen</a>
+          <a class="property-phone" href="tel:+306970878029"><span>Τηλέφωνο για το SkouZen</span>697 087 8029</a>
           <div class="skouzen-listing-panel">
             <div class="booking-facts">
               <span>2 επισκέπτες</span>
@@ -262,6 +263,7 @@
           </div>
           <p>Ιδανικό όταν η διαμονή θέλει άνεση, μεγαλύτερο καθιστικό και πιο χαλαρή καθημερινότητα.</p>
           <a class="btn primary big" href="#book" data-book-property="Pearl">Κράτηση Pearl</a>
+          <a class="property-phone" href="tel:+302104520279"><span>Τηλέφωνο αποκλειστικά για το Pearl</span>210 452 0279</a>
         </div>
       </div>
     </section>
@@ -300,6 +302,7 @@
           </div>
           <p>Για διαμονή με ανάλαφρο ύφος, ωραίο φως και καλοκαιρινό mood χωρίς υπερβολές.</p>
           <a class="btn primary big" href="#book" data-book-property="Ivory">Κράτηση Ivory</a>
+          <a class="property-phone" href="tel:+306970878029"><span>Τηλέφωνο για το Ivory</span>697 087 8029</a>
         </div>
       </div>
     </section>
@@ -309,7 +312,8 @@
         <div class="booking-copy">
           <p class="eyebrow">Αίτημα κράτησης</p>
           <h1 id="bookTitle">Κάνε αίτημα κράτησης.</h1>
-          <p>Η φόρμα είναι σε δοκιμαστική λειτουργία και δεν αποστέλλει αιτήματα ακόμη.</p>
+          <p>Επίλεξε διαθέσιμες ημερομηνίες και στείλε το αίτημά σου. Οι ημερομηνίες δεσμεύονται μέχρι να επιβεβαιωθεί η κράτηση από τον υπεύθυνο.</p>
+          <a class="property-phone" id="bookingPhone" href="tel:+306970878029"><span>Τηλέφωνο για το SkouZen</span><strong>697 087 8029</strong></a>
           <div class="mini-map">
             <span>Πειραιάς</span>
             <span>Σπέτσες</span>
@@ -346,7 +350,9 @@
           <label>Μήνυμα
             <textarea name="message" rows="4" placeholder="Π.χ. φτάνω βράδυ, θέλω late check-in."></textarea>
           </label>
-          <button class="btn primary big" type="submit">Προεπισκόπηση αιτήματος</button>
+          <p class="availability-note" id="availabilityNote" role="status">Έλεγχος διαθεσιμότητας…</p>
+          <label class="booking-trap" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+          <button class="btn primary big" type="submit" disabled>Αποστολή αιτήματος</button>
           <p class="form-note" id="formNote" role="status"></p>
         </form>
       </div>
@@ -356,7 +362,21 @@
       <div class="contact-card reveal-up">
         <p class="eyebrow">Επικοινωνία</p>
         <h1 id="contactTitle">Η επόμενη διαμονή σου ξεκινά εδώ.</h1>
-        <p>Οι τρόποι επικοινωνίας και κράτησης θα είναι σύντομα διαθέσιμοι. Προς το παρόν, γνώρισε τα καταλύματά μας.</p>
+        <p>Κάθε κατάλυμα έχει τον δικό του υπεύθυνο επικοινωνίας. Επίλεξε το σωστό τηλέφωνο για τη διαμονή σου.</p>
+        <div class="contact-properties">
+          <section class="contact-property-group" aria-labelledby="contactSharedTitle">
+            <p class="eyebrow">Κοινό τηλέφωνο · SkouZen & Ivory</p>
+            <h2 id="contactSharedTitle">SkouZen & Ivory</h2>
+            <p>Πειραιάς για το SkouZen · Σπέτσες για το Ivory</p>
+            <a class="contact-phone" href="tel:+306970878029">697 087 8029<span>Κλήση για SkouZen ή Ivory ↗</span></a>
+          </section>
+          <section class="contact-property-group" aria-labelledby="contactPearlTitle">
+            <p class="eyebrow">Ξεχωριστό τηλέφωνο · Μόνο Pearl</p>
+            <h2 id="contactPearlTitle">Pearl</h2>
+            <p>Πειραιάς · Επικοινώνησε απευθείας με τον υπεύθυνο του Pearl.</p>
+            <a class="contact-phone" href="tel:+302104520279">210 452 0279<span>Κλήση αποκλειστικά για το Pearl ↗</span></a>
+          </section>
+        </div>
         <div class="contact-links">
           <a href="#book">Αίτημα κράτησης</a>
         </div>
@@ -373,7 +393,8 @@
     <div class="lightbox-counter"><span data-lightbox-current>1</span> / <span data-lightbox-total>1</span></div>
   </div>
 
-  <script src="ui-controls.js?v=20261019-9a"></script>
-  <script src="app.js?v=20261020-16"></script>
+  <script src="ui-controls.js?v=20261020-18"></script>
+  <script src="app.js?v=20261020-18"></script>
+  <script src="booking.js?v=20261020-18"></script>
 </body>
 </html>

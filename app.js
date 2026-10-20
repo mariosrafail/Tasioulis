@@ -484,14 +484,3 @@ window.addEventListener('keydown', event => {
   if (event.key === 'ArrowLeft') stepLightbox(-1);
   if (event.key === 'ArrowRight') stepLightbox(1);
 });
-
-const form = document.getElementById('bookingForm');
-if (form) {
-  form.addEventListener('submit', event => {
-    event.preventDefault();
-    const data = Object.fromEntries(new FormData(form));
-    const note = document.getElementById('formNote');
-    note.textContent = `Προεπισκόπηση για το ${data.property}. Το αίτημα δεν έχει αποσταλεί.`;
-    form.classList.add('sent');
-  });
-}

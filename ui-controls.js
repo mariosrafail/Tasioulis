@@ -53,7 +53,7 @@
     input.addEventListener('invalid', event => {
       event.preventDefault(); trigger.setAttribute('aria-invalid', 'true');
       trigger.focus();
-      document.getElementById('formNote').textContent = 'Συμπλήρωσε τα απαραίτητα πεδία για την προεπισκόπηση.';
+      document.getElementById('formNote').textContent = input.validationMessage || 'Συμπλήρωσε τα απαραίτητα πεδία.';
     });
     input.addEventListener('change', () => trigger.removeAttribute('aria-invalid'));
     return widget;
@@ -92,9 +92,11 @@
   });
 
   const dates = [...form.querySelectorAll('input[type="date"]')];
-  const today = new Date(); today.setHours(12, 0, 0, 0);
+  const today = parse(new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Athens', year:'numeric', month:'2-digit', day:'2-digit' }).format(new Date()));
   dates.forEach((input, index) => {
     input.min = iso(today);
+    const latest = new Date(today); latest.setFullYear(latest.getFullYear() + 2);
+    input.max = iso(latest);
     const label = index ? 'Αναχώρηση' : 'Άφιξη';
     const widget = makeWidget(input, label, 'date');
     widget.trigger.setAttribute('aria-haspopup', 'dialog');
@@ -113,7 +115,9 @@
       const previous = makeButton('‹', 'calendar-nav'); previous.setAttribute('aria-label', 'Προηγούμενος μήνας');
       const next = makeButton('›', 'calendar-nav'); next.setAttribute('aria-label', 'Επόμενος μήνας');
       const minimum = parse(input.min);
+      const maximum = parse(input.max);
       previous.disabled = month.getFullYear() === minimum.getFullYear() && month.getMonth() <= minimum.getMonth();
+      next.disabled = month.getFullYear() === maximum.getFullYear() && month.getMonth() >= maximum.getMonth();
       previous.addEventListener('click', () => { month.setMonth(month.getMonth() - 1); render(); widget.panel.querySelector('.calendar-nav:not(:disabled)').focus(); });
       next.addEventListener('click', () => { month.setMonth(month.getMonth() + 1); render(); widget.panel.querySelectorAll('.calendar-nav')[1].focus(); });
       header.append(previous, title, next); widget.panel.append(header);
@@ -125,7 +129,9 @@
       for (let day = 1; day <= count; day++) {
         const value = iso(new Date(month.getFullYear(), month.getMonth(), day, 12));
         const button = makeButton(String(day), 'calendar-day');
-        button.disabled = value < input.min;
+        const unavailable = window.elementsBooking?.unavailable(input.name, value);
+        button.disabled = value < input.min || value > input.max || Boolean(unavailable);
+        if (unavailable && value >= input.min && value <= input.max) { button.classList.add('is-unavailable'); button.title = 'Μη διαθέσιμη ημερομηνία'; }
         button.setAttribute('aria-label', new Intl.DateTimeFormat('el-GR', { dateStyle: 'full' }).format(parse(value)));
         button.setAttribute('aria-pressed', String(value === input.value));
         if (value === iso(today)) button.classList.add('is-today');
@@ -138,7 +144,7 @@
       const anchor = parse(input.value || input.min);
       month = new Date(anchor.getFullYear(), anchor.getMonth(), 1, 12);
       render();
-      (widget.panel.querySelector('[aria-pressed="true"]') || widget.panel.querySelector('.calendar-day:not(:disabled)')).focus();
+      (widget.panel.querySelector('[aria-pressed="true"]:not(:disabled)') || widget.panel.querySelector('.calendar-day:not(:disabled)') || widget.panel.querySelector('.calendar-nav:not(:disabled)'))?.focus();
     };
     widget.panel.addEventListener('keydown', event => {
       if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
@@ -151,10 +157,10 @@
       if (target && !target.disabled) target.focus();
     });
     input.addEventListener('change', syncDate); syncDate();
+    document.addEventListener('elements:availability', () => { if (!widget.panel.hidden) render(); });
   });
   dates[0].addEventListener('change', () => {
-    if (!dates[0].value) return;
-    const nextDay = parse(dates[0].value); nextDay.setDate(nextDay.getDate() + 1);
+    const nextDay = parse(dates[0].value || iso(today)); nextDay.setDate(nextDay.getDate() + 1);
     dates[1].min = iso(nextDay);
     if (dates[1].value && dates[1].value < dates[1].min) { dates[1].value = ''; notify(dates[1]); }
   });

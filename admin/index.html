@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Elements — Διαχείριση διαθεσιμότητας</title>
+  <link rel="stylesheet" href="/styles.css?v=20261020-18" />
+  <link rel="stylesheet" href="/admin/styles.css" />
+</head>
+<body class="admin-page">
+  <header class="admin-header"><a class="brand" href="/"><span class="brand-mark">E</span><span class="brand-text"><strong>Elements</strong></span></a><a class="admin-back" href="/#book">Πίσω στο site ↗</a></header>
+  <main class="admin-shell">
+    <div class="admin-intro"><p class="eyebrow">Elements · Διαχείριση</p><h1>Κάθε διαμονή, οργανωμένη.</h1><p>Τηλεφωνικές κρατήσεις, μη διαθέσιμες ημερομηνίες και αιτήματα από το site.</p></div>
+    <section class="admin-panel login-panel" id="loginPanel" aria-labelledby="loginTitle">
+      <p class="eyebrow">Πρόσβαση διαχειριστή</p><h2 id="loginTitle">Σύνδεση με email</h2>
+      <p>Χρησιμοποίησε το εξουσιοδοτημένο email και τον κωδικό σου ή ζήτησε έναν κωδικό σύνδεσης μέσω email.</p>
+      <form id="loginForm">
+        <label>Email<input type="email" name="email" autocomplete="email" required /></label>
+        <label id="passwordField">Κωδικός πρόσβασης<input type="password" name="password" autocomplete="current-password" required /></label>
+        <label id="otpField" hidden>Κωδικός email<input type="text" name="otp" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" /></label>
+        <button class="btn primary" id="loginButton" type="submit">Σύνδεση</button>
+        <button class="btn ghost" id="changeEmail" type="button" hidden>Άλλο email / Νέος κωδικός</button>
+        <button class="btn ghost" id="loginMode" type="button">Σύνδεση με κωδικό email</button>
+        <a class="admin-back" href="/admin/reset-password">Ορισμός / επαναφορά κωδικού ↗</a>
+      </form>
+      <p class="admin-status" id="loginStatus" role="status"></p>
+    </section>
+    <section id="dashboard" hidden aria-label="Διαχείριση καταλυμάτων">
+      <div class="admin-toolbar"><p id="signedInAs"></p><button class="btn ghost" id="logout" type="button">Αποσύνδεση</button></div>
+      <details class="admin-panel account-settings" id="accountSettings">
+        <summary>Ο λογαριασμός μου · Αλλαγή κωδικού <span aria-hidden="true">⌄</span></summary>
+        <div class="account-settings-body">
+          <h2>Νέος προσωπικός κωδικός</h2>
+          <p>Θα στείλουμε κωδικό επιβεβαίωσης αποκλειστικά στο email του συνδεδεμένου λογαριασμού. Η αλλαγή ολοκληρώνεται μόνο με αυτόν τον κωδικό.</p>
+          <p class="account-email" id="passwordAccountEmail"></p>
+          <button class="btn ghost" type="button" id="sendPasswordCode">Αποστολή κωδικού επιβεβαίωσης</button>
+          <form id="changePasswordForm">
+            <fieldset id="changePasswordFields" disabled hidden>
+              <label>Κωδικός επιβεβαίωσης από το email<input type="text" name="otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required /></label>
+              <div class="form-row">
+                <label>Νέος κωδικός<input type="password" name="password" autocomplete="new-password" minlength="12" maxlength="128" required /></label>
+                <label>Επιβεβαίωση νέου κωδικού<input type="password" name="confirmation" autocomplete="new-password" minlength="12" maxlength="128" required /></label>
+              </div>
+              <p>Τουλάχιστον 12 χαρακτήρες. Επίλεξε έναν μοναδικό κωδικό για τον λογαριασμό σου.</p>
+              <button class="btn primary" type="submit">Επιβεβαίωση & αλλαγή κωδικού</button>
+            </fieldset>
+          </form>
+          <p class="admin-status" id="passwordChangeStatus" role="status"></p>
+        </div>
+      </details>
+      <div class="admin-columns">
+        <section class="admin-panel" aria-labelledby="newStayTitle">
+          <p class="eyebrow">Νέα καταχώριση</p><h2 id="newStayTitle">Δέσμευση ημερομηνιών</h2>
+          <p>Η αναχώρηση δεν δεσμεύεται ως νύχτα. Το site ενημερώνεται αμέσως μετά την αποθήκευση.</p>
+          <form id="blockForm">
+            <fieldset><legend>Κατάλυμα</legend><div class="admin-choice">
+              <label><input type="radio" name="property" value="SkouZen" checked /><span>SkouZen</span></label>
+              <label><input type="radio" name="property" value="Ivory" /><span>Ivory</span></label>
+              <label><input type="radio" name="property" value="Pearl" /><span>Pearl</span></label>
+            </div></fieldset>
+            <fieldset><legend>Τύπος καταχώρισης</legend><div class="admin-choice">
+              <label><input type="radio" name="kind" value="phone" checked /><span>Τηλεφωνική κράτηση</span></label>
+              <label><input type="radio" name="kind" value="block" /><span>Μη διαθέσιμο</span></label>
+            </div></fieldset>
+            <div class="form-row"><label>Άφιξη<input type="date" name="checkin" required /></label><label>Αναχώρηση<input type="date" name="checkout" required /></label></div>
+            <label>Όνομα πελάτη <small>Προαιρετικό</small><input type="text" name="name" maxlength="120" /></label>
+            <label>Σημείωση <small>Ορατή μόνο στους διαχειριστές</small><textarea name="note" rows="3" maxlength="2000" placeholder="Π.χ. κράτηση μέσω τηλεφώνου ή συντήρηση"></textarea></label>
+            <button class="btn primary" type="submit">Αποθήκευση & δέσμευση</button>
+          </form>
+        </section>
+        <section class="admin-panel reservations-panel" aria-labelledby="reservationsTitle">
+          <div class="admin-list-heading"><div><p class="eyebrow">Διαθεσιμότητα & αιτήματα</p><h2 id="reservationsTitle">Επόμενες διαμονές</h2></div><button class="btn ghost" type="button" id="refresh">Ανανέωση</button></div>
+          <div class="admin-filters" role="group" aria-label="Φίλτρο καταλύματος"><button type="button" data-filter="all" aria-pressed="true">Όλα</button><button type="button" data-filter="SkouZen" aria-pressed="false">SkouZen</button><button type="button" data-filter="Ivory" aria-pressed="false">Ivory</button><button type="button" data-filter="Pearl" aria-pressed="false">Pearl</button></div>
+          <p class="admin-list-summary" id="listSummary"></p><div id="reservationList" aria-live="polite"></div>
+        </section>
+      </div>
+      <p class="admin-status" id="adminStatus" role="status"></p>
+    </section>
+  </main>
+  <script type="module" src="/admin/app.js"></script>
+</body>
+</html>
